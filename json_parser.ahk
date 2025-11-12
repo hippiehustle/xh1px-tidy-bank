@@ -44,7 +44,7 @@ class JSON {
     static _EscapeString(str) {
         ; Escape special characters in strings
         str := StrReplace(str, "\", "\\")  ; Backslash must be first
-        str := StrReplace(str, """", "\""")  ; Quote
+        str := StrReplace(str, '"', '\"')  ; Quote
         str := StrReplace(str, "`n", "\n")  ; Newline
         str := StrReplace(str, "`r", "\r")  ; Carriage return
         str := StrReplace(str, "`t", "\t")  ; Tab
