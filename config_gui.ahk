@@ -1,12 +1,13 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+#Include item_grouping.ahk
 
 ; ==========================================
-; xh1px's Tidy Bank - Configuration GUI v2.2
-; Professional Design System - Accordion Selection
+; xh1px's Tidy Bank - Configuration GUI v3.0
+; Modern Card-Based Design with Tab Navigation
 ; ==========================================
 
-; COLOR SYSTEM
+; COLOR SYSTEM (Preserved from original)
 ColorSystem := Map(
     "PrimaryBg", "0a0e14",
     "SecondaryBg", "151b24",
@@ -25,24 +26,19 @@ ColorSystem := Map(
 
 ; TYPOGRAPHY SYSTEM
 TypographySystem := Map(
-    "MainTitle", Map("size", 32, "weight", 700),
-    "SectionHeader", Map("size", 24, "weight", 600),
-    "SubsectionHeader", Map("size", 18, "weight", 600),
-    "BodyText", Map("size", 14, "weight", 400),
-    "SmallText", Map("size", 12, "weight", 400),
-    "CodeText", Map("size", 13, "weight", 400)
+    "Title", Map("size", 28, "weight", 700),
+    "SectionHeader", Map("size", 16, "weight", 600),
+    "Subsection", Map("size", 13, "weight", 600),
+    "Body", Map("size", 11, "weight", 400),
+    "Small", Map("size", 10, "weight", 400)
 )
 
-; SPACING & LAYOUT SYSTEM
+; SPACING SYSTEM
 SpacingSystem := Map(
-    "SidebarWidth", 200,
-    "PaddingLarge", 60,
-    "PaddingMedium", 32,
-    "PaddingSmall", 16,
-    "BorderRadius", 12,
-    "ButtonPadding", "10|20",
-    "ColumnGap", 32,
-    "ItemSpacing", 16
+    "CardPadding", 20,
+    "SectionGap", 16,
+    "ItemGap", 10,
+    "BorderRadius", 8
 )
 
 ; ==========================================
@@ -208,26 +204,6 @@ class JSON {
 }
 
 ; ==========================================
-; CATEGORY DEFINITIONS
-; ==========================================
-
-Global SkillCategories := Map(
-    "Combat", ["Ranged", "Magic", "Prayer"],
-    "Gathering", ["Woodcutting", "Mining", "Fishing", "Hunter"],
-    "Crafting", ["Cooking", "Fletching", "Crafting", "Smithing", "Herblore"],
-    "Processing", ["Runecraft", "Firemaking", "Construction"],
-    "Utility", ["Agility", "Thieving", "Slayer", "Farming"]
-)
-
-Global ItemTypeCategories := Map(
-    "Potions", ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion", "Magic Potion"],
-    "Herbs", ["Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf"],
-    "Logs", ["Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs"],
-    "Fish", ["Salmon", "Tuna", "Trout", "Mackerel", "Herring"],
-    "Ore", ["Copper Ore", "Tin Ore", "Iron Ore", "Coal", "Mithril Ore"]
-)
-
-; ==========================================
 ; DEFAULT CONFIGURATION
 ; ==========================================
 
@@ -240,12 +216,12 @@ Global defaultCfg := Map(
     "UseOCR", true,
     "StealthMode", true,
     "BankCategories", Map(
-        "tab_0", ["Ranged", "Magic"],
-        "tab_1", ["Prayer", "Agility"],
-        "tab_2", ["Cooking", "Fletching"],
-        "tab_3", ["Crafting", "Smithing"],
-        "tab_4", ["Mining", "Woodcutting"],
-        "tab_5", ["Fishing", "Hunter"],
+        "tab_0", ["Skills"],
+        "tab_1", ["Equipment"],
+        "tab_2", ["Consumables"],
+        "tab_3", ["Resources"],
+        "tab_4", ["Tools"],
+        "tab_5", ["Currency"],
         "tab_6", [],
         "tab_7", []
     )
@@ -276,21 +252,24 @@ try {
 ; ==========================================
 
 Global MyGui
-Global selectedTab := 1
+Global MainTabs
+Global selectedBankTab := 1
 Global tabConfigs := Map()
-Global tabButtons := Map()
-Global expandedGroups := Map()
-Global skillListboxes := Map()
-Global typeListboxes := Map()
+Global bankTabButtons := []
+Global lvGroupsCtrl
+Global groupRows := Map()
+Global groupToTab := Map()
+Global coreGroupChildren := Map()
+Global txtSelectedTabInfoExclusive
+Global lbxCurrentTabGroups
 
-InitializeTabConfigs() {
-    Loop 8 {
-        tabKey := "tab_" (A_Index - 1)
-        if userCfg["BankCategories"].Has(tabKey) {
-            tabConfigs[tabKey] := userCfg["BankCategories"][tabKey]
-        } else {
-            tabConfigs[tabKey] := []
-        }
+; Initialize tab configurations
+Loop 8 {
+    tabKey := "tab_" (A_Index - 1)
+    if userCfg["BankCategories"].Has(tabKey) {
+        tabConfigs[tabKey] := userCfg["BankCategories"][tabKey]
+    } else {
+        tabConfigs[tabKey] := []
     }
 }
 
@@ -298,534 +277,643 @@ InitializeTabConfigs() {
 ; GUI INITIALIZATION
 ; ==========================================
 
-MyGui := Gui("+LastFound", "xh1px's Tidy Bank - Bank Configuration v2.2")
+MyGui := Gui("+LastFound", "xh1px's Tidy Bank - Configuration v3.0")
 MyGui.OnEvent("Close", (*) => ExitApp())
-
-; Initialize tab configurations from loaded settings
-InitializeTabConfigs()
-
-; Set colors using color system
-bgColor := "0x" . ColorSystem["PrimaryBg"]
-MyGui.BackColor := bgColor
+MyGui.BackColor := "0x" . ColorSystem["PrimaryBg"]
 MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
 
 ; ==========================================
-; HEADER SECTION
+; HEADER
 ; ==========================================
 
-; Header background
-headerPx := MyGui.Add("Text", "x0 y0 w1400 h100 c0x" . ColorSystem["PrimaryBg"], "")
-headerPx.Opt("-Background")
+MyGui.SetFont("s28 w700 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+MyGui.Add("Text", "x30 y20 w900", "xh1px's Tidy Bank")
 
-; Logo and title area
-logoTitleCtrl := MyGui.Add("Text", "x40 y20 w400 c0x" . ColorSystem["PrimaryAccent"], "xh1px's Tidy Bank")
-MyGui.SetFont("s32 w700", "Segoe UI")
-logoTitleCtrl.Value := "xh1px's Tidy Bank"
-
-MyGui.SetFont("s13 w400 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-subtitleCtrl := MyGui.Add("Text", "x40 y55 w400", "OSRS Bank Organization v2.2")
-subtitleCtrl.Value := "OSRS Bank Organization v2.2"
-
-; Status area (top right)
 MyGui.SetFont("s12 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-statusCtrl := MyGui.Add("Text", "x1200 y30 w150 h50 Right", "Ready")
+MyGui.Add("Text", "x30 y58 w900", "OSRS Bank Organization Tool - Configure your bot settings")
+
+; Divider
+MyGui.Add("Text", "x0 y95 w1000 h2 0x10 Background" . ColorSystem["InputBorder"], "")
 
 ; ==========================================
-; DIVIDER
+; TAB NAVIGATION
 ; ==========================================
 
-MyGui.Add("Text", "x0 y100 w1400 h1 c0x" . ColorSystem["InputBorder"], "")
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+MainTabs := MyGui.Add("Tab3", "x0 y100 w1000 h700", ["Bot Settings", "Bank Configuration"])
 
 ; ==========================================
-; MAIN CONTENT - LEFT COLUMN (BASIC SETTINGS)
+; TAB 1: BOT SETTINGS
 ; ==========================================
 
-contentStartY := 120
-leftColumnX := 40
-leftColumnWidth := 350
+MainTabs.UseTab(1)
 
-MyGui.SetFont("s18 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . leftColumnX " y" . contentStartY, "BASIC SETTINGS")
+; Create settings cards
+currentY := 140
 
-currentY := contentStartY + 40
+; === CARD: Anti-Ban Settings ===
+CreateCard(30, currentY, 450, 260, "Anti-Ban & Safety")
+cardY := currentY + 50
 
-; Anti-Ban Setting
-MyGui.SetFont("s13 w500 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-MyGui.Add("Text", "x" . leftColumnX " y" . currentY . " c0x" . ColorSystem["SecondaryText"], "Anti-Ban Mode")
-currentY += 22
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Anti-Ban Mode")
+cardY += 25
 
-ddlAntiBan := MyGui.Add("DropDownList", "x" . leftColumnX " y" . currentY " w" . leftColumnWidth, ["Psychopath", "Extreme", "Stealth", "Off"])
+ddlAntiBan := MyGui.Add("DropDownList", "x50 y" . cardY " w410", ["Psychopath", "Extreme", "Stealth", "Off"])
 ddlAntiBan.OnEvent("Change", SaveConfig)
 try {
     ddlAntiBan.Text := userCfg["AntiBan"]
 } catch {
     ddlAntiBan.Choose(1)
 }
-currentY += 45
+cardY += 50
 
-; Voice Alerts
-chkVoiceAlerts := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryText"], "Enable Voice Alerts")
-chkVoiceAlerts.OnEvent("Click", SaveConfig)
-try {
-    chkVoiceAlerts.Value := userCfg["VoiceAlerts"]
-} catch {
-    chkVoiceAlerts.Value := true
-}
-currentY += 35
-
-; World Hop
-chkWorldHop := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryText"], "World Hop (Rare)")
-chkWorldHop.OnEvent("Click", SaveConfig)
-try {
-    chkWorldHop.Value := userCfg["WorldHop"]
-} catch {
-    chkWorldHop.Value := false
-}
-currentY += 35
-
-; Enable OCR
-chkUseOCR := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryText"], "Enable OCR Item Detection")
-chkUseOCR.OnEvent("Click", SaveConfig)
-try {
-    chkUseOCR.Value := userCfg["UseOCR"]
-} catch {
-    chkUseOCR.Value := true
-}
-currentY += 35
-
-; Stealth Mode
-chkStealthMode := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryAccent"], "STEALTH MODE (PRIMARY)")
+chkStealthMode := MyGui.Add("CheckBox", "x50 y" . cardY " c0x" . ColorSystem["PrimaryAccent"], "STEALTH MODE (Primary Safety)")
 chkStealthMode.OnEvent("Click", SaveConfig)
 try {
     chkStealthMode.Value := userCfg["StealthMode"]
 } catch {
     chkStealthMode.Value := true
 }
-currentY += 45
+cardY += 40
 
-; Max Session
-MyGui.SetFont("s13 w500 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-MyGui.Add("Text", "x" . leftColumnX " y" . currentY, "Max Session Duration")
-currentY += 22
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY " w410", "Stealth mode adds randomized delays and natural mouse movements to avoid detection.")
 
-MyGui.SetFont("s12 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-sldMaxSession := MyGui.Add("Slider", "x" . leftColumnX " y" . currentY " w" . leftColumnWidth . " Range60-480 TickInterval30 c0x" . ColorSystem["SecondaryAccent"], userCfg["MaxSession"])
+; === CARD: Session Settings ===
+currentY += 280
+CreateCard(30, currentY, 450, 180, "Session Configuration")
+cardY := currentY + 50
+
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Maximum Session Duration")
+cardY += 25
+
+sldMaxSession := MyGui.Add("Slider", "x50 y" . cardY " w410 Range60-480 TickInterval30", userCfg["MaxSession"])
 sldMaxSession.OnEvent("Change", UpdateSliderDisplay)
-currentY += 35
+cardY += 40
 
-MyGui.SetFont("s12 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-txtMaxSession := MyGui.Add("Text", "x" . leftColumnX " y" . currentY . " c0x" . ColorSystem["PrimaryAccent"], userCfg["MaxSession"] . " minutes")
+MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+txtMaxSession := MyGui.Add("Text", "x50 y" . cardY " w410 Center", userCfg["MaxSession"] . " minutes")
+
+; === CARD: Features ===
+currentY := 140
+CreateCard(510, currentY, 450, 360, "Feature Toggles")
+cardY := currentY + 50
+
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+
+chkUseOCR := MyGui.Add("CheckBox", "x530 y" . cardY, "Enable OCR Item Detection")
+chkUseOCR.OnEvent("Click", SaveConfig)
+try {
+    chkUseOCR.Value := userCfg["UseOCR"]
+} catch {
+    chkUseOCR.Value := true
+}
+cardY += 30
+
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x550 y" . cardY " w390", "Uses Tesseract OCR to identify items by name")
+cardY += 40
+
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+chkVoiceAlerts := MyGui.Add("CheckBox", "x530 y" . cardY, "Enable Voice Alerts")
+chkVoiceAlerts.OnEvent("Click", SaveConfig)
+try {
+    chkVoiceAlerts.Value := userCfg["VoiceAlerts"]
+} catch {
+    chkVoiceAlerts.Value := true
+}
+cardY += 30
+
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x550 y" . cardY " w390", "Provides audio notifications for important events")
+cardY += 40
+
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+chkWorldHop := MyGui.Add("CheckBox", "x530 y" . cardY, "Enable World Hopping (Rare)")
+chkWorldHop.OnEvent("Click", SaveConfig)
+try {
+    chkWorldHop.Value := userCfg["WorldHop"]
+} catch {
+    chkWorldHop.Value := false
+}
+cardY += 30
+
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x550 y" . cardY " w390", "Occasionally switches worlds to mimic human behavior")
+
+; === Action Buttons ===
+MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+btnSaveSettings := MyGui.Add("Button", "x30 y720 w200 h40", "Save Settings")
+btnSaveSettings.OnEvent("Click", SaveAllSettings)
+
+btnGenerateBot := MyGui.Add("Button", "x240 y720 w200 h40", "Generate Bot")
+btnGenerateBot.OnEvent("Click", GenerateBot)
+
+btnReset := MyGui.Add("Button", "x450 y720 w150 h40", "Reset to Defaults")
+btnReset.OnEvent("Click", (*) => ResetToDefaults())
 
 ; ==========================================
-; MAIN CONTENT - RIGHT COLUMN (BANK TABS & SELECTION)
+; TAB 2: BANK CONFIGURATION - REDESIGNED
+; Exclusive Group Assignment System
 ; ==========================================
 
-rightColumnX := leftColumnX + leftColumnWidth + SpacingSystem["ColumnGap"]
-rightColumnWidth := 1000
+MainTabs.UseTab(2)
 
-MyGui.SetFont("s18 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . rightColumnX " y" . contentStartY, "BANK TABS & ITEM SELECTION")
+currentY := 140
 
-currentY := contentStartY + 40
+; === Bank Tab Selector ===
+CreateCard(30, currentY, 940, 150, "Select Bank Tab to Configure")
+cardY := currentY + 50
 
-; Tab buttons grid
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-tabGridY := currentY
-tabGridX := rightColumnX
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Choose a bank tab (1-8) to assign core groups and subgroups:")
+cardY += 30
+
+; Create bank tab buttons in a grid
+buttonStartX := 50
+buttonStartY := cardY
+buttonWidth := 100
+buttonHeight := 40
+buttonGapX := 110
 
 Loop 8 {
     tabNum := A_Index
-    btnX := tabGridX + (Mod(tabNum - 1, 4) * 135)
-    btnY := tabGridY + (Floor((tabNum - 1) / 4) * 45)
+    btnX := buttonStartX + ((tabNum - 1) * buttonGapX)
 
-    tabBtn := MyGui.Add("Button", "x" . btnX " y" . btnY " w120 h35", "Tab " . tabNum)
-    tabBtn.OnEvent("Click", (*) => SelectTab(tabNum))
-    tabButtons["tab_" (tabNum - 1)] := tabBtn
+    MyGui.SetFont("s11 w600", "Segoe UI")
+    btn := MyGui.Add("Button", "x" . btnX " y" . buttonStartY " w" . buttonWidth " h" . buttonHeight, "Tab " . tabNum)
+    btn.OnEvent("Click", (*) => SelectBankTabExclusive(tabNum))
+    bankTabButtons.Push(btn)
 }
 
-currentY := tabGridY + 100
+; === Available Core Groups & Subgroups ===
+currentY += 170
+CreateCard(30, currentY, 620, 480, "Available Core Groups & Subgroups")
+cardY := currentY + 50
 
-; Selected tab info
-MyGui.SetFont("s13 w500 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-MyGui.Add("Text", "x" . rightColumnX " y" . currentY, "Tab Configuration:")
-currentY += 25
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY " w580", "Check a core group to auto-select all its subgroups. Once assigned, groups are locked to that tab.")
+cardY += 25
 
-MyGui.SetFont("s12 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-txtSelectedTab := MyGui.Add("Text", "x" . rightColumnX " y" . currentY " c0x" . ColorSystem["PrimaryAccent"], "Selected: Tab 1 (0 items)")
+; Create scrollable list view for core groups and subgroups
+MyGui.SetFont("s10 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+lvGroups := MyGui.Add("ListView", "x50 y" . cardY " w570 h390 Checked Grid Background" . ColorSystem["SecondaryBg"], ["Group Name", "Type", "Assigned To"])
+lvGroups.OnEvent("ItemCheck", OnGroupCheckChanged)
+lvGroups.OnEvent("Click", OnGroupClick)
 
-currentY += 35
+; Populate with all core groups and subgroups from ItemGroupingSystem
+lvGroupsCtrl := lvGroups
+groupRows := Map()
+groupToTab := Map()
+coreGroupChildren := Map()
 
-; ==========================================
-; ACCORDION-STYLE SELECTION SECTION
-; ==========================================
+rowNum := 0
 
-accordionX := rightColumnX
-accordionY := currentY
-accordionWidth := rightColumnWidth - 20
+; Add CORE GROUPS first
+for coreGroupKey, coreGroupName in ItemGroupingSystem.CORE_GROUPS {
+    rowNum++
+    lvGroups.Add("", coreGroupName, "CORE", "")
 
-; Create collapsible skill groups
-MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . accordionX " y" . accordionY, "Select Skills & Items:")
-accordionY += 30
+    groupRows[rowNum] := Map(
+        "name", coreGroupName,
+        "key", coreGroupKey,
+        "type", "CORE",
+        "parentRow", 0
+    )
 
-expandedGroups["Skills"] := false
-expandedGroups["Potions"] := false
-expandedGroups["Herbs"] := false
-expandedGroups["Logs"] := false
-expandedGroups["Fish"] := false
-expandedGroups["Ore"] := false
+    coreGroupChildren[coreGroupName] := []
+}
 
-; Skills Section
-btnSkillsToggle := MyGui.Add("Button", "x" . accordionX " y" . accordionY " w" . accordionWidth . " h30", "▶ Skills (Combat, Gathering, Crafting, Processing, Utility)")
-btnSkillsToggle.OnEvent("Click", (*) => ToggleAccordionGroup("Skills", accordionX, accordionY + 30, accordionWidth))
-accordionY += 35
+; Add SUBGROUPS under their respective core groups
+for subgroupKey, subgroupName in ItemGroupingSystem.SUBGROUPS {
+    rowNum++
 
-; Create containers for each section with multiple listboxes
-skillsContainerY := accordionY
-skillsColumnX1 := accordionX + 10
-skillsColumnX2 := accordionX + 270
+    ; Determine parent core group from tag prefix
+    parentCore := ""
+    if InStr(subgroupKey, "skill_") == 1 {
+        parentCore := "Skills"
+    } else if InStr(subgroupKey, "equip_") == 1 {
+        parentCore := "Equipment"
+    } else if InStr(subgroupKey, "resource_") == 1 {
+        parentCore := "Resources"
+    } else if InStr(subgroupKey, "consume_") == 1 {
+        parentCore := "Consumables"
+    } else if InStr(subgroupKey, "tool_") == 1 {
+        parentCore := "Tools"
+    } else if InStr(subgroupKey, "quest_") == 1 {
+        parentCore := "Quest Items"
+    } else if InStr(subgroupKey, "currency_") == 1 {
+        parentCore := "Currency"
+    } else if InStr(subgroupKey, "clue_") == 1 {
+        parentCore := "Clue Scrolls"
+    } else if InStr(subgroupKey, "pvp_") == 1 {
+        parentCore := "PvP Items"
+    } else if InStr(subgroupKey, "minigame_") == 1 {
+        parentCore := "Minigame Items"
+    } else if InStr(subgroupKey, "cosmetic_") == 1 {
+        parentCore := "Cosmetics"
+    } else if InStr(subgroupKey, "pet_") == 1 {
+        parentCore := "Pets"
+    } else if InStr(subgroupKey, "transport_") == 1 {
+        parentCore := "Transportation"
+    } else {
+        parentCore := "Miscellaneous"
+    }
 
-; Combat
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-skillsContainerY_local := skillsContainerY
-MyGui.Add("Text", "x" . skillsColumnX1 " y" . skillsContainerY_local, "Combat")
-skillsContainerY_local += 18
+    lvGroups.Add("", "  → " . subgroupName, "Subgroup", "")
 
-combatList := MyGui.Add("ListBox", "x" . skillsColumnX1 " y" . skillsContainerY_local " w250 h80 Multi", ["Ranged", "Magic", "Prayer"])
-combatList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Combat"] := combatList
-skillsContainerY_local += 90
+    groupRows[rowNum] := Map(
+        "name", subgroupName,
+        "key", subgroupKey,
+        "type", "SUBGROUP",
+        "parentCore", parentCore
+    )
 
-; Gathering
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX1 " y" . skillsContainerY_local, "Gathering")
-skillsContainerY_local += 18
+    ; Add to parent's children list
+    if coreGroupChildren.Has(parentCore) {
+        coreGroupChildren[parentCore].Push(rowNum)
+    }
+}
 
-gatheringList := MyGui.Add("ListBox", "x" . skillsColumnX1 " y" . skillsContainerY_local " w250 h100 Multi", ["Woodcutting", "Mining", "Fishing", "Hunter"])
-gatheringList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Gathering"] := gatheringList
-skillsContainerY_local += 110
+; Auto-size columns
+lvGroups.ModifyCol(1, 300)
+lvGroups.ModifyCol(2, 100)
+lvGroups.ModifyCol(3, 150)
 
-; Crafting
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX1 " y" . skillsContainerY_local, "Crafting")
-skillsContainerY_local += 18
+; === Current Tab Assignment ===
+CreateCard(670, currentY, 300, 480, "Current Tab Assignment")
+cardY := currentY + 50
 
-craftingList := MyGui.Add("ListBox", "x" . skillsColumnX1 " y" . skillsContainerY_local " w250 h100 Multi", ["Cooking", "Fletching", "Crafting", "Smithing", "Herblore"])
-craftingList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Crafting"] := craftingList
-skillsContainerY_local += 110
+MyGui.SetFont("s13 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+txtSelectedTabInfoExclusive := MyGui.Add("Text", "x690 y" . cardY " w260 Center", "Tab 1: 0 groups")
+cardY += 35
 
-; Processing & Utility combined on right
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX2 " y" . skillsContainerY, "Processing")
-skillsContainerY += 18
+MyGui.SetFont("s10 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+lbxCurrentTabGroups := MyGui.Add("ListBox", "x690 y" . cardY " w260 h390 Background" . ColorSystem["SecondaryBg"])
+lbxCurrentTabGroups.OnEvent("DoubleClick", RemoveGroupFromTab)
 
-processingList := MyGui.Add("ListBox", "x" . skillsColumnX2 " y" . skillsContainerY " w250 h80 Multi", ["Runecraft", "Firemaking", "Construction"])
-processingList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Processing"] := processingList
-skillsContainerY += 90
+MyGui.SetFont("s9 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x690 y" . (cardY + 395) " w260 Center", "Double-click to remove")
 
-; Utility
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX2 " y" . skillsContainerY, "Utility")
-skillsContainerY += 18
-
-utilityList := MyGui.Add("ListBox", "x" . skillsColumnX2 " y" . skillsContainerY " w250 h100 Multi", ["Agility", "Thieving", "Slayer", "Farming"])
-utilityList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Utility"] := utilityList
-skillsContainerY += 110
-
-accordionY := skillsContainerY + 20
-
-; Item Types Section
-btnItemsToggle := MyGui.Add("Button", "x" . accordionX " y" . accordionY " w" . accordionWidth . " h30", "▶ Item Types (Potions, Herbs, Logs, Fish, Ore)")
-btnItemsToggle.OnEvent("Click", (*) => ToggleAccordionGroup("Items", accordionX, accordionY + 30, accordionWidth))
-accordionY += 35
-
-; Create item type listboxes
-itemsContainerY := accordionY
-itemsColumnX1 := accordionX + 10
-itemsColumnX2 := accordionX + 270
-
-; Potions
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-itemsContainerY_local := itemsContainerY
-MyGui.Add("Text", "x" . itemsColumnX1 " y" . itemsContainerY_local, "Potions")
-itemsContainerY_local += 18
-
-potionsList := MyGui.Add("ListBox", "x" . itemsColumnX1 " y" . itemsContainerY_local " w250 h100 Multi", ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion", "Magic Potion"])
-potionsList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Potions"] := potionsList
-itemsContainerY_local += 110
-
-; Herbs
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX1 " y" . itemsContainerY_local, "Herbs")
-itemsContainerY_local += 18
-
-herbsList := MyGui.Add("ListBox", "x" . itemsColumnX1 " y" . itemsContainerY_local " w250 h100 Multi", ["Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf"])
-herbsList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Herbs"] := herbsList
-itemsContainerY_local += 110
-
-; Logs
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX2 " y" . itemsContainerY, "Logs")
-itemsContainerY += 18
-
-logsList := MyGui.Add("ListBox", "x" . itemsColumnX2 " y" . itemsContainerY " w250 h100 Multi", ["Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs"])
-logsList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Logs"] := logsList
-itemsContainerY += 110
-
-; Fish
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX2 " y" . itemsContainerY, "Fish")
-itemsContainerY += 18
-
-fishList := MyGui.Add("ListBox", "x" . itemsColumnX2 " y" . itemsContainerY " w250 h100 Multi", ["Salmon", "Tuna", "Trout", "Mackerel", "Herring"])
-fishList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Fish"] := fishList
-itemsContainerY += 110
-
-; Ore
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX1 " y" . itemsContainerY_local, "Ore")
-itemsContainerY_local += 18
-
-oreList := MyGui.Add("ListBox", "x" . itemsColumnX1 " y" . itemsContainerY_local " w250 h100 Multi", ["Copper Ore", "Tin Ore", "Iron Ore", "Coal", "Mithril Ore"])
-oreList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Ore"] := oreList
-itemsContainerY_local += 110
-
-maxY := Max(itemsContainerY, itemsContainerY_local) + 30
-
-; ==========================================
-; SELECTED ITEMS DISPLAY
-; ==========================================
-
-selectedDisplayX := rightColumnX + rightColumnWidth + 20
-selectedDisplayY := contentStartY + 40
-selectedDisplayWidth := 250
-
-MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . selectedDisplayX " y" . selectedDisplayY, "Selected Items:")
-selectedDisplayY += 25
-
-MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-lbxTabItems := MyGui.Add("ListBox", "x" . selectedDisplayX " y" . selectedDisplayY " w" . selectedDisplayWidth . " h" . (maxY - selectedDisplayY) . " Multi", [])
-lbxTabItems.OnEvent("DoubleClick", RemoveTabItem)
-Global lbxTabItems
-
-; ==========================================
-; BOTTOM SECTION - BUTTONS
-; ==========================================
-
-bottomY := maxY + 30
-
+; === Action Buttons ===
+currentY += 500
 MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
 
-; Save Settings Button
-btnSave := MyGui.Add("Button", "x40 y" . bottomY " w150 h35 c0x" . ColorSystem["PrimaryAccent"], "Save Settings")
-btnSave.OnEvent("Click", SaveAllSettings)
+btnSaveBank := MyGui.Add("Button", "x30 y" . currentY " w200 h40", "Save Bank Config")
+btnSaveBank.OnEvent("Click", SaveAllSettingsExclusive)
 
-; Generate Bot Button
-btnGenerate := MyGui.Add("Button", "x200 y" . bottomY " w150 h35 c0x" . ColorSystem["PrimaryAccent"], "Generate Bot")
-btnGenerate.OnEvent("Click", GenerateBot)
+btnClearTab := MyGui.Add("Button", "x240 y" . currentY " w150 h40", "Clear This Tab")
+btnClearTab.OnEvent("Click", (*) => ClearCurrentBankTabExclusive())
 
-; Reset Button
-btnReset := MyGui.Add("Button", "x360 y" . bottomY " w120 h35 c0x" . ColorSystem["PrimaryAccent"], "Reset")
-btnReset.OnEvent("Click", (*) => ResetCategories())
+btnResetAll := MyGui.Add("Button", "x400 y" . currentY " w150 h40", "Reset All Tabs")
+btnResetAll.OnEvent("Click", (*) => ResetToDefaultsExclusive())
 
-; Status text (bottom right)
-MyGui.SetFont("s12 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-txtStatus := MyGui.Add("Text", "x1200 y" . bottomY " w150 h35 Right", "Ready")
+MainTabs.UseTab()  ; End tab definition
 
 ; ==========================================
 ; SHOW GUI
 ; ==========================================
 
-guiHeight := bottomY + 50
-MyGui.Show("w1400 h" . guiHeight)
+MyGui.Show("w1000 h800")
 
-; Initialize the interface
-SelectTab(1)
+; Initialize
+SelectBankTabExclusive(1)
 
 ; ==========================================
-; EVENT HANDLERS
+; HELPER FUNCTIONS
 ; ==========================================
 
-ToggleAccordionGroup(groupName, x, y, width) {
-    global expandedGroups
+CreateCard(x, y, width, height, title) {
+    global MyGui, ColorSystem
 
-    ; Toggle state
-    expandedGroups[groupName] := !expandedGroups[groupName]
+    ; Card background
+    MyGui.Add("Text", "x" . x " y" . y " w" . width " h" . height " Background" . ColorSystem["SecondaryBg"], "")
 
-    ; Update button appearance (▶ vs ▼)
-    ; This would require more complex GUI manipulation in AutoHotkey v2.0
-    ; For now, we'll keep the functionality working
+    ; Card title bar
+    MyGui.Add("Text", "x" . x " y" . y " w" . width " h35 Background" . ColorSystem["TertiaryBg"], "")
+
+    ; Card title text
+    MyGui.SetFont("s13 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+    MyGui.Add("Text", "x" . (x + 15) " y" . (y + 8) " Background" . ColorSystem["TertiaryBg"], title)
 }
 
-SelectTab(tabNum) {
-    global selectedTab, txtSelectedTab, tabConfigs, lbxTabItems, skillListboxes, typeListboxes
+; ==========================================
+; EXCLUSIVE ASSIGNMENT EVENT HANDLERS
+; ==========================================
 
-    selectedTab := tabNum
-    tabKey := "tab_" (tabNum - 1)
+SelectBankTabExclusive(tabNum) {
+    global selectedBankTab, bankTabButtons, ColorSystem, txtSelectedTabInfoExclusive
+    global lbxCurrentTabGroups, groupToTab, lvGroupsCtrl
 
-    ; Update the display with correct tab number
-    itemCount := tabConfigs[tabKey].Length
-    txtSelectedTab.Value := "Selected: Tab " . tabNum . " (" . itemCount . " items)"
+    selectedBankTab := tabNum
 
-    ; Update ListBox with current tab items
-    lbxTabItems.Delete()
-    for item in tabConfigs[tabKey] {
-        lbxTabItems.Add([item])
-    }
-
-    ; Uncheck all skill listboxes
-    for group, listbox in skillListboxes {
-        listbox.Value := ""
-    }
-
-    ; Uncheck all type listboxes
-    for group, listbox in typeListboxes {
-        listbox.Value := ""
-    }
-
-    ; Check the appropriate items in skill listboxes
-    for skill, listbox in skillListboxes {
-        Loop Parse, listbox.GetText(0), "|" {
-            item := A_LoopField
-            for tabItem in tabConfigs[tabKey] {
-                if (tabItem == item) {
-                    ; Find and select this item in the listbox
-                    Loop listbox.GetCount() {
-                        if (listbox.GetText(A_Index) == item) {
-                            listbox.Choose(A_Index)
-                            break
-                        }
-                    }
-                    break
-                }
-            }
+    ; Update button visual states
+    Loop 8 {
+        if (A_Index == tabNum) {
+            bankTabButtons[A_Index].Opt("+Background" . ColorSystem["PrimaryAccent"])
+            MyGui.SetFont("s11 w700 c0x" . ColorSystem["PrimaryBg"], "Segoe UI")
+            bankTabButtons[A_Index].SetFont()
+        } else {
+            bankTabButtons[A_Index].Opt("+BackgroundDefault")
+            MyGui.SetFont("s11 w600 c0xFFFFFF", "Segoe UI")
+            bankTabButtons[A_Index].SetFont()
         }
     }
 
-    ; Check the appropriate items in type listboxes
-    for type, listbox in typeListboxes {
-        Loop Parse, listbox.GetText(0), "|" {
-            item := A_LoopField
-            for tabItem in tabConfigs[tabKey] {
-                if (tabItem == item) {
-                    Loop listbox.GetCount() {
-                        if (listbox.GetText(A_Index) == item) {
-                            listbox.Choose(A_Index)
-                            break
-                        }
-                    }
-                    break
-                }
+    ; Update current tab's group list
+    UpdateCurrentTabDisplay()
+
+    ; Update ListView to show which groups are available/assigned
+    UpdateListViewAvailability()
+}
+
+UpdateCurrentTabDisplay() {
+    global selectedBankTab, groupToTab, lbxCurrentTabGroups, txtSelectedTabInfoExclusive, groupRows
+
+    ; Clear listbox
+    lbxCurrentTabGroups.Delete()
+
+    ; Count and display groups assigned to this tab
+    groupCount := 0
+    for groupName, assignedTab in groupToTab {
+        if assignedTab == selectedBankTab {
+            groupCount++
+            lbxCurrentTabGroups.Add([groupName])
+        }
+    }
+
+    txtSelectedTabInfoExclusive.Value := "Tab " . selectedBankTab . ": " . groupCount . " groups"
+}
+
+UpdateListViewAvailability() {
+    global selectedBankTab, groupToTab, lvGroupsCtrl, groupRows, coreGroupChildren
+
+    ; Update each row's checkbox state and "Assigned To" column
+    Loop lvGroupsCtrl.GetCount() {
+        rowNum := A_Index
+        rowInfo := groupRows[rowNum]
+        groupName := rowInfo["name"]
+
+        ; Check if this group is assigned to any tab
+        if groupToTab.Has(groupName) {
+            assignedTab := groupToTab[groupName]
+
+            ; Update "Assigned To" column
+            lvGroupsCtrl.Modify(rowNum, , , , "Tab " . assignedTab)
+
+            ; Check/uncheck based on current tab
+            if assignedTab == selectedBankTab {
+                lvGroupsCtrl.Modify(rowNum, "Check")
+            } else {
+                lvGroupsCtrl.Modify(rowNum, "-Check")
+                ; Grey out row (disable it visually)
+                ; Note: ListView doesn't have direct "disabled" state, but we handle it in click event
             }
+        } else {
+            ; Not assigned to any tab
+            lvGroupsCtrl.Modify(rowNum, , , , "")
+            lvGroupsCtrl.Modify(rowNum, "-Check")
         }
     }
 }
 
-UpdateSelectedItems(GuiCtrlObj, Info, *) {
-    global selectedTab, tabConfigs, lbxTabItems, txtSelectedTab, skillListboxes, typeListboxes
+OnGroupCheckChanged(GuiCtrlObj, Item, IsChecked) {
+    global selectedBankTab, groupRows, groupToTab, coreGroupChildren, lvGroupsCtrl
 
-    tabKey := "tab_" (selectedTab - 1)
-    tabConfigs[tabKey] := []
+    rowInfo := groupRows[Item]
+    groupName := rowInfo["name"]
+    groupType := rowInfo["type"]
 
-    ; Collect all selected items from skill listboxes
-    for group, listbox in skillListboxes {
-        selected := listbox.Value
-        Loop Parse, selected, "|" {
-            if (A_LoopField != "") {
-                selectedIndex := A_LoopField
-                if (selectedIndex > 0) {
-                    item := listbox.GetText(selectedIndex)
-                    if (item != "") {
-                        tabConfigs[tabKey].Push(item)
-                    }
-                }
-            }
-        }
-    }
-
-    ; Collect all selected items from type listboxes
-    for type, listbox in typeListboxes {
-        selected := listbox.Value
-        Loop Parse, selected, "|" {
-            if (A_LoopField != "") {
-                selectedIndex := A_LoopField
-                if (selectedIndex > 0) {
-                    item := listbox.GetText(selectedIndex)
-                    if (item != "") {
-                        tabConfigs[tabKey].Push(item)
-                    }
-                }
-            }
-        }
-    }
-
-    ; Update ListBox display
-    lbxTabItems.Delete()
-    for selectedItem in tabConfigs[tabKey] {
-        lbxTabItems.Add([selectedItem])
-    }
-
-    ; Update item count
-    txtSelectedTab.Value := "Selected: Tab " . selectedTab . " (" . tabConfigs[tabKey].Length . " items)"
-}
-
-RemoveTabItem(GuiCtrlObj, Info, *) {
-    global selectedTab, tabConfigs, lbxTabItems, txtSelectedTab, skillListboxes, typeListboxes
-
-    tabKey := "tab_" (selectedTab - 1)
-
-    ; Get the selected item from ListBox
-    selectedIndex := lbxTabItems.Value
-    if (selectedIndex == 0)
+    ; Check if group is already assigned to a different tab
+    if groupToTab.Has(groupName) && groupToTab[groupName] != selectedBankTab {
+        ; Prevent checking - already assigned to another tab
+        lvGroupsCtrl.Modify(Item, "-Check")
+        MsgBox(groupName . " is already assigned to Tab " . groupToTab[groupName] . "!`n`nRemove it from that tab first.", "Already Assigned", "Icon!")
         return
+    }
 
-    itemToRemove := lbxTabItems.GetText(selectedIndex)
-    if (itemToRemove == "")
+    if IsChecked {
+        ; Assign to current tab
+        groupToTab[groupName] := selectedBankTab
+
+        ; If this is a CORE group, automatically check all its subgroups
+        if groupType == "CORE" && coreGroupChildren.Has(groupName) {
+            for subgroupRow in coreGroupChildren[groupName] {
+                subgroupInfo := groupRows[subgroupRow]
+                subgroupName := subgroupInfo["name"]
+
+                ; Assign subgroup to same tab
+                groupToTab[subgroupName] := selectedBankTab
+                lvGroupsCtrl.Modify(subgroupRow, "Check")
+                lvGroupsCtrl.Modify(subgroupRow, , , , "Tab " . selectedBankTab)
+            }
+        }
+
+        ; Update display
+        lvGroupsCtrl.Modify(Item, , , , "Tab " . selectedBankTab)
+    } else {
+        ; Unassign from current tab
+        if groupToTab.Has(groupName) {
+            groupToTab.Delete(groupName)
+        }
+
+        ; If this is a CORE group, automatically uncheck all its subgroups
+        if groupType == "CORE" && coreGroupChildren.Has(groupName) {
+            for subgroupRow in coreGroupChildren[groupName] {
+                subgroupInfo := groupRows[subgroupRow]
+                subgroupName := subgroupInfo["name"]
+
+                ; Unassign subgroup
+                if groupToTab.Has(subgroupName) {
+                    groupToTab.Delete(subgroupName)
+                }
+                lvGroupsCtrl.Modify(subgroupRow, "-Check")
+                lvGroupsCtrl.Modify(subgroupRow, , , , "")
+            }
+        }
+
+        ; Update display
+        lvGroupsCtrl.Modify(Item, , , , "")
+    }
+
+    ; Update current tab display
+    UpdateCurrentTabDisplay()
+}
+
+OnGroupClick(GuiCtrlObj, Item) {
+    ; Handle click on row - prevent interaction if assigned to different tab
+    global selectedBankTab, groupRows, groupToTab
+
+    if Item > 0 {
+        rowInfo := groupRows[Item]
+        groupName := rowInfo["name"]
+
+        if groupToTab.Has(groupName) && groupToTab[groupName] != selectedBankTab {
+            MsgBox(groupName . " is assigned to Tab " . groupToTab[groupName] . ".`n`nSwitch to that tab or remove it to reassign.", "Info", "Iconi")
+        }
+    }
+}
+
+RemoveGroupFromTab(GuiCtrlObj, Item) {
+    global selectedBankTab, groupToTab, lbxCurrentTabGroups, lvGroupsCtrl, groupRows, coreGroupChildren
+
+    selectedIndex := lbxCurrentTabGroups.Value
+    if selectedIndex == 0 {
         return
+    }
 
-    ; Remove from tabConfigs
-    Loop (tabConfigs[tabKey].Length) {
-        if (tabConfigs[tabKey][A_Index] == itemToRemove) {
-            tabConfigs[tabKey].RemoveAt(A_Index)
+    groupToRemove := lbxCurrentTabGroups.GetText(selectedIndex)
+    if groupToRemove == "" {
+        return
+    }
+
+    ; Remove from assignment
+    if groupToTab.Has(groupToRemove) {
+        groupToTab.Delete(groupToRemove)
+    }
+
+    ; Find and update the ListView row
+    Loop lvGroupsCtrl.GetCount() {
+        rowInfo := groupRows[A_Index]
+        if rowInfo["name"] == groupToRemove {
+            lvGroupsCtrl.Modify(A_Index, "-Check")
+            lvGroupsCtrl.Modify(A_Index, , , , "")
+
+            ; If CORE group, also remove all subgroups
+            if rowInfo["type"] == "CORE" && coreGroupChildren.Has(groupToRemove) {
+                for subgroupRow in coreGroupChildren[groupToRemove] {
+                    subgroupInfo := groupRows[subgroupRow]
+                    subgroupName := subgroupInfo["name"]
+
+                    if groupToTab.Has(subgroupName) {
+                        groupToTab.Delete(subgroupName)
+                    }
+                    lvGroupsCtrl.Modify(subgroupRow, "-Check")
+                    lvGroupsCtrl.Modify(subgroupRow, , , , "")
+                }
+            }
             break
         }
     }
 
-    ; Uncheck from skill listboxes
-    for group, listbox in skillListboxes {
-        Loop listbox.GetCount() {
-            if (listbox.GetText(A_Index) == itemToRemove) {
-                ; Deselect this item
-                ; In AutoHotkey v2.0 ListBox, we need to rebuild the selection
-                break
-            }
+    ; Update display
+    UpdateCurrentTabDisplay()
+}
+
+ClearCurrentBankTabExclusive() {
+    global selectedBankTab, groupToTab, lvGroupsCtrl, groupRows
+
+    result := MsgBox("Clear all groups from Tab " . selectedBankTab . "?", "Confirm Clear", "YN Icon?")
+    if result != "Yes" {
+        return
+    }
+
+    ; Remove all assignments for this tab
+    groupsToRemove := []
+    for groupName, assignedTab in groupToTab {
+        if assignedTab == selectedBankTab {
+            groupsToRemove.Push(groupName)
         }
     }
 
-    ; Uncheck from type listboxes
-    for type, listbox in typeListboxes {
-        Loop listbox.GetCount() {
-            if (listbox.GetText(A_Index) == itemToRemove) {
-                break
-            }
-        }
+    for groupName in groupsToRemove {
+        groupToTab.Delete(groupName)
     }
 
-    ; Remove from ListBox
-    lbxTabItems.Delete(selectedIndex)
+    ; Update ListView
+    UpdateListViewAvailability()
+    UpdateCurrentTabDisplay()
+}
+
+ResetToDefaultsExclusive() {
+    global groupToTab
+
+    result := MsgBox("Reset all tab assignments to defaults?", "Confirm Reset", "YN Icon!")
+    if result != "Yes" {
+        return
+    }
+
+    ; Clear all assignments
+    groupToTab := Map()
 
     ; Update display
-    txtSelectedTab.Value := "Selected: Tab " . selectedTab . " (" . tabConfigs[tabKey].Length . " items)"
+    UpdateListViewAvailability()
+    UpdateCurrentTabDisplay()
+
+    MsgBox("All tab assignments cleared!", "Success", "Iconi")
+}
+
+SaveAllSettingsExclusive(*) {
+    global userCfg, cfgFile, groupToTab, groupRows
+
+    ; Convert groupToTab to tabConfigs format
+    ; tabConfigs should be Map("tab_0" -> [groups], "tab_1" -> [groups], ...)
+    newTabConfigs := Map()
+
+    ; Initialize all tabs with empty arrays
+    Loop 8 {
+        newTabConfigs["tab_" . (A_Index - 1)] := []
+    }
+
+    ; Populate tabs with assigned groups
+    for groupName, tabNum in groupToTab {
+        tabKey := "tab_" . (tabNum - 1)
+        newTabConfigs[tabKey].Push(groupName)
+    }
+
+    ; Update global tabConfigs
+    tabConfigs := newTabConfigs
+
+    ; Save config
+    SaveConfig()
+    userCfg["BankCategories"] := tabConfigs
+
+    try {
+        ; Save configuration file
+        if FileExist(cfgFile) {
+            FileDelete(cfgFile)
+        }
+        FileAppend(JSON.Stringify(userCfg), cfgFile)
+
+        ; Automatically generate main.ahk with new settings
+        success := GenerateMainScript()
+
+        if success {
+            MsgBox("Settings saved successfully!`n`nmain.ahk has been updated with your exclusive group assignments.", "Success", "Iconi")
+        } else {
+            MsgBox("Settings saved, but main.ahk generation failed.`n`nCheck error log for details.", "Warning", "Icon!")
+        }
+    } catch as err {
+        MsgBox("Error saving settings: " . err.Message, "Error", "Icon!")
+    }
+}
+
+ResetToDefaults() {
+    global tabConfigs, defaultCfg, selectedBankTab
+
+    result := MsgBox("Reset all settings to defaults?", "Confirm Reset", "YN Icon!")
+    if (result != "Yes")
+        return
+
+    ; Reset tab configs
+    for key, value in defaultCfg["BankCategories"] {
+        tabConfigs[key] := value.Clone()
+    }
+
+    ; Reset other settings
+    ddlAntiBan.Text := defaultCfg["AntiBan"]
+    chkVoiceAlerts.Value := defaultCfg["VoiceAlerts"]
+    chkWorldHop.Value := defaultCfg["WorldHop"]
+    sldMaxSession.Value := defaultCfg["MaxSession"]
+    chkUseOCR.Value := defaultCfg["UseOCR"]
+    chkStealthMode.Value := defaultCfg["StealthMode"]
+
+    UpdateSliderDisplay()
+    SelectBankTabExclusive(selectedBankTab)
+
+    MsgBox("Settings reset to defaults!", "Success", "Iconi")
 }
 
 UpdateSliderDisplay(*) {
@@ -843,68 +931,112 @@ SaveConfig(*) {
     userCfg["UseOCR"] := chkUseOCR.Value
     userCfg["StealthMode"] := chkStealthMode.Value
     userCfg["SortMode"] := "Category"
-
-    try {
-        if FileExist(cfgFile)
-            FileDelete(cfgFile)
-        FileAppend(JSON.Stringify(userCfg), cfgFile)
-    }
 }
 
 SaveAllSettings(*) {
-    global userCfg, cfgFile, txtStatus, tabConfigs
+    global userCfg, cfgFile, tabConfigs
 
     SaveConfig()
     userCfg["BankCategories"] := tabConfigs
 
     try {
+        ; Save configuration file
         if FileExist(cfgFile)
             FileDelete(cfgFile)
         FileAppend(JSON.Stringify(userCfg), cfgFile)
-        txtStatus.Value := "✓ Saved"
-        SetTimer(() => txtStatus.Value := "Ready", -2000)
+
+        ; Automatically generate main.ahk with new settings
+        success := GenerateMainScript()
+
+        if success {
+            MsgBox("Settings saved successfully!`n`nmain.ahk has been updated with your configuration.", "Success", "Iconi")
+        } else {
+            MsgBox("Settings saved, but main.ahk generation failed.`n`nCheck error log for details.", "Warning", "Icon!")
+        }
     } catch as err {
-        MsgBox("Error saving: " . err.Message, "Error", 16)
-        txtStatus.Value := "Error"
+        MsgBox("Error saving settings: " . err.Message, "Error", "Icon!")
     }
-}
-
-ResetCategories() {
-    global tabConfigs, selectedTab
-
-    result := MsgBox("Reset all tabs to defaults?", "Confirm Reset", 4)
-    if (result != "Yes") {
-        return
-    }
-
-    tabConfigs["tab_0"] := ["Ranged", "Magic"]
-    tabConfigs["tab_1"] := ["Prayer", "Agility"]
-    tabConfigs["tab_2"] := ["Cooking", "Fletching"]
-    tabConfigs["tab_3"] := ["Crafting", "Smithing"]
-    tabConfigs["tab_4"] := ["Mining", "Woodcutting"]
-    tabConfigs["tab_5"] := ["Fishing", "Hunter"]
-    tabConfigs["tab_6"] := []
-    tabConfigs["tab_7"] := []
-
-    SelectTab(selectedTab)
 }
 
 GenerateBot(*) {
-    global txtStatus, userCfg, cfgFile
+    global userCfg, cfgFile
 
-    result := MsgBox("Generate bot from current settings?", "xh1px's Tidy Bank - Generate", "YN Icon?")
-    if (result == "Yes") {
-        SaveAllSettings()
+    result := MsgBox("Generate bot from current settings?`n`nThis will create main.ahk with your configuration.", "Generate Bot", "YN Icon?")
+    if (result != "Yes")
+        return
 
-        if FileExist(A_ScriptDir "\generate_main.ahk") {
-            try {
-                Run('"' A_AhkPath '" "' A_ScriptDir '\generate_main.ahk"')
-                txtStatus.Value := "Generating..."
-            } catch as err {
-                MsgBox("Error: " . err.Message, "Error", 16)
+    SaveAllSettings()
+}
+
+GenerateMainScript() {
+    global userCfg, tabConfigs
+
+    try {
+        ; Read the template
+        templateFile := A_ScriptDir "\main_template_v2.ahk"
+        if !FileExist(templateFile) {
+            MsgBox("Template file not found: " . templateFile . "`n`nUsing fallback template.", "Warning", "Icon!")
+            templateFile := A_ScriptDir "\main_template.ahk"
+            if !FileExist(templateFile) {
+                return false
             }
-        } else {
-            MsgBox("Missing: generate_main.ahk", "Error", 48)
         }
+
+        content := FileRead(templateFile)
+
+        ; Generate bank categories as AHK code
+        bankCategoriesCode := GenerateBankCategoriesCode(tabConfigs)
+
+        ; Replace template variables
+        content := StrReplace(content, "{{BANK_CATEGORIES_JSON}}", bankCategoriesCode)
+        content := StrReplace(content, "{{ANTIBAN}}", userCfg["AntiBan"])
+        content := StrReplace(content, "{{VOICE}}", userCfg["VoiceAlerts"] ? "true" : "false")
+        content := StrReplace(content, "{{WORLDHOP}}", userCfg["WorldHop"] ? "true" : "false")
+        content := StrReplace(content, "{{MAXSESSION}}", userCfg["MaxSession"])
+        content := StrReplace(content, "{{USEOCR}}", userCfg["UseOCR"] ? "true" : "false")
+        content := StrReplace(content, "{{STEALTH}}", userCfg["StealthMode"] ? "true" : "false")
+
+        ; Write to main.ahk
+        outputFile := A_ScriptDir "\main.ahk"
+        if FileExist(outputFile) {
+            FileDelete(outputFile)
+        }
+        FileAppend(content, outputFile)
+
+        return true
+    } catch as err {
+        MsgBox("Error generating main script: " . err.Message, "Error", "Icon!")
+        return false
     }
+}
+
+GenerateBankCategoriesCode(tabConfigs) {
+    ; Generate AutoHotkey code for bank categories Map
+    code := "; Bank tab configuration (generated from GUI)`n"
+    code .= "bankCategories := Map(`n"
+
+    first := true
+    for tabKey, categories in tabConfigs {
+        if !first {
+            code .= ",`n"
+        }
+        first := false
+
+        ; Build array of categories
+        code .= '    "' . tabKey . '", ['
+
+        catFirst := true
+        for category in categories {
+            if !catFirst {
+                code .= ", "
+            }
+            catFirst := false
+            code .= '"' . category . '"'
+        }
+
+        code .= "]"
+    }
+
+    code .= "`n)`n"
+    return code
 }

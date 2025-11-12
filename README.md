@@ -17,41 +17,52 @@
 ## 🎯 What This Is
 
 A **production-ready OSRS bank sorting bot** with:
-- ✅ Interactive configuration GUI
-- ✅ 40+ OSRS item categories
-- ✅ Per-tab bank organization
-- ✅ Stealth-first design (zero detection risk)
-- ✅ Character position safety
-- ✅ Professional architecture
-- ✅ Complete documentation
+- ✅ **24,735 tagged items** with hierarchical classification
+- ✅ **Intelligent conflict resolution** (lowest tab wins)
+- ✅ **Automatic script generation** from GUI settings
+- ✅ **Modern TreeView interface** with 14 core groups & 150+ tags
+- ✅ **Stealth-first design** (zero detection risk)
+- ✅ **Professional architecture** with complete documentation
+- ✅ **Real-time bank sorting** by item categories
 
 ---
 
 ## 📚 Documentation (READ FIRST)
 
 ### 🚀 Getting Started
-**→ [QUICKSTART.md](QUICKSTART.md)** - 3-step setup guide
-- How to configure your bank
-- Available categories
-- Bot controls and settings
+**→ [QUICK_START_V2.md](QUICK_START_V2.md)** - v2.0 Quick Start Guide ⭐ NEW
+- 5-minute setup
+- Understanding conflicts
+- Category reference
+- Tips & best practices
+
+**→ [QUICKSTART.md](QUICKSTART.md)** - Original 3-step setup guide
+- Basic setup
+- Controls
 - Troubleshooting
+
+### 🎯 Core Systems
+**→ [ITEM_GROUPING_SYSTEM.md](ITEM_GROUPING_SYSTEM.md)** - Complete Tag Hierarchy
+- 14 core groups
+- 150+ tags
+- Item classification rules
+
+**→ [ITEM_GROUPING_USAGE.md](ITEM_GROUPING_USAGE.md)** - API Reference
+- How to use the grouping system
+- Code examples
+- Database queries
+
+**→ [CONFLICT_RESOLUTION_GUIDE.md](CONFLICT_RESOLUTION_GUIDE.md)** - Conflict Resolution
+- How conflicts work
+- Lowest tab wins rule
+- Examples & scenarios
 
 ### 📖 Complete Reference
 **→ [PROJECT_STATUS.md](PROJECT_STATUS.md)** - Full technical documentation
 - Architecture overview
-- All 40+ categories explained
-- Database integration instructions
 - Performance metrics
 - Configuration examples
 - Development roadmap
-
-### 📋 Project Summary
-**→ [SUMMARY.md](SUMMARY.md)** - What was built and why
-- Features explained
-- Before/after comparison
-- Next phases
-- Safety guarantees
-- Statistics
 
 ### 💻 This File
 **→ [README.md](README.md)** - Navigation and quick reference
@@ -61,42 +72,40 @@ A **production-ready OSRS bank sorting bot** with:
 ## 📂 File Structure
 
 ```
-Bank_Sorter/
-├── config_gui.ahk          ← RUN THIS FIRST to configure
-├── database.ahk            ← Item categorization system
-├── generate_main.ahk       ← Bot generator
-├── main_template.ahk       ← Bot logic template
-├── main.ahk                ← Generated bot (run this to bot)
+xh1px-tidy-bank/
+├── config_gui.ahk                  ⭐ RUN THIS FIRST - Modern GUI
+├── main.ahk                        ← Generated bot (auto-created on save)
+├── main_template_v2.ahk            ← Bot template with grouping system
+├── item_grouping.ahk               ← Item database module (24,735 items)
+├── bank_tab_resolver.ahk           ← Conflict resolution system
 │
-├── osrsbox-db.json         ← Item database (33 test items)
-├── user_config.json        ← Your saved settings (auto-created)
-├── xh1px_logo.png          ← Branding
+├── osrs-items-condensed.json       ← Item database (4.9 MB, 24,735 items)
+├── user_config.json                ← Your settings (auto-created)
+├── xh1px_logo.png                  ← Branding
 │
-├── README.md               ← This file
-├── QUICKSTART.md           ← Get started in 3 steps
-├── PROJECT_STATUS.md       ← Complete technical docs
-└── SUMMARY.md              ← Development summary
+├── README.md                       ← This file
+├── QUICK_START_V2.md               ⭐ NEW - v2.0 Quick Start
+├── QUICKSTART.md                   ← Original quick start
+├── ITEM_GROUPING_SYSTEM.md         ← Tag hierarchy & classifications
+├── ITEM_GROUPING_USAGE.md          ← API reference & examples
+├── CONFLICT_RESOLUTION_GUIDE.md    ← Conflict system explained
+├── PROJECT_STATUS.md               ← Complete technical docs
+└── SUMMARY.md                      ← Development summary
 ```
 
 ---
 
-## ⚡ Quick Start (3 Steps)
+## ⚡ Quick Start (2 Steps)
 
-### Step 1: Configure
+### Step 1: Configure & Save
 ```bash
 AutoHotkey v2.0 config_gui.ahk
 ```
-- Select which categories for each bank tab
-- Set Anti-ban, OCR, Stealth, Session time
-- Click "Save Settings"
+- Configure "Bot Settings" tab (Anti-ban, Stealth, Session time)
+- Configure "Bank Configuration" tab (select items for each tab)
+- Click "Save Settings" → **main.ahk is automatically generated!**
 
-### Step 2: Generate
-```bash
-Click "Generate Bot" in the GUI
-```
-- Bot creates customized version with your settings
-
-### Step 3: Run
+### Step 2: Run Bot
 ```bash
 AutoHotkey v2.0 main.ahk
 Press F1 to start
@@ -104,6 +113,8 @@ Press F1 to start
 - F1 = Toggle ON/OFF
 - F2 = Emergency stop
 - Esc = Exit
+
+**That's it!** The bot now uses your settings and the conflict resolution system.
 
 ---
 
