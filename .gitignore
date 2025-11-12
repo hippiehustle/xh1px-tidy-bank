@@ -31,3 +31,7 @@ desktop.ini
 
 # Backup files
 *.backup
+
+# Large database files (keep condensed version only)
+osrsbox-items-tagged.json
+osrsbox-db.json
