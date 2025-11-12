@@ -1,0 +1,33 @@
+# Log files
+logs/
+*.log
+tidybank_log.txt
+
+# Generated main script
+main.ahk
+
+# User configuration (may contain sensitive data)
+user_config.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# AutoHotkey compiled executables
+*.exe
+
+# Backup files
+*.backup
