@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Include json_parser.ahk
 
 ; ==========================================
 ; OSRS Item Grouping System
@@ -187,7 +188,7 @@ class ItemGroupingSystem {
     }
 
     ; Get all items in a core group
-    static GetItemsByCore Group(coreGroup) {
+    static GetItemsByCoreGroup(coreGroup) {
         if !this.dbLoaded
             this.LoadDatabase()
 
