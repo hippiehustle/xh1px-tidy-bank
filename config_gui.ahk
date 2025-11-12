@@ -2,11 +2,11 @@
 #SingleInstance Force
 
 ; ==========================================
-; xh1px's Tidy Bank - Configuration GUI v2.2
-; Professional Design System - Accordion Selection
+; xh1px's Tidy Bank - Configuration GUI v3.0
+; Modern Card-Based Design with Tab Navigation
 ; ==========================================
 
-; COLOR SYSTEM
+; COLOR SYSTEM (Preserved from original)
 ColorSystem := Map(
     "PrimaryBg", "0a0e14",
     "SecondaryBg", "151b24",
@@ -25,24 +25,19 @@ ColorSystem := Map(
 
 ; TYPOGRAPHY SYSTEM
 TypographySystem := Map(
-    "MainTitle", Map("size", 32, "weight", 700),
-    "SectionHeader", Map("size", 24, "weight", 600),
-    "SubsectionHeader", Map("size", 18, "weight", 600),
-    "BodyText", Map("size", 14, "weight", 400),
-    "SmallText", Map("size", 12, "weight", 400),
-    "CodeText", Map("size", 13, "weight", 400)
+    "Title", Map("size", 28, "weight", 700),
+    "SectionHeader", Map("size", 16, "weight", 600),
+    "Subsection", Map("size", 13, "weight", 600),
+    "Body", Map("size", 11, "weight", 400),
+    "Small", Map("size", 10, "weight", 400)
 )
 
-; SPACING & LAYOUT SYSTEM
+; SPACING SYSTEM
 SpacingSystem := Map(
-    "SidebarWidth", 200,
-    "PaddingLarge", 60,
-    "PaddingMedium", 32,
-    "PaddingSmall", 16,
-    "BorderRadius", 12,
-    "ButtonPadding", "10|20",
-    "ColumnGap", 32,
-    "ItemSpacing", 16
+    "CardPadding", 20,
+    "SectionGap", 16,
+    "ItemGap", 10,
+    "BorderRadius", 8
 )
 
 ; ==========================================
@@ -211,15 +206,22 @@ class JSON {
 ; CATEGORY DEFINITIONS
 ; ==========================================
 
-Global SkillCategories := Map(
-    "Combat", ["Ranged", "Magic", "Prayer"],
-    "Gathering", ["Woodcutting", "Mining", "Fishing", "Hunter"],
-    "Crafting", ["Cooking", "Fletching", "Crafting", "Smithing", "Herblore"],
-    "Processing", ["Runecraft", "Firemaking", "Construction"],
-    "Utility", ["Agility", "Thieving", "Slayer", "Farming"]
-)
+Global AllSkills := ["Ranged", "Magic", "Prayer", "Woodcutting", "Mining", "Fishing",
+                     "Hunter", "Cooking", "Fletching", "Crafting", "Smithing", "Herblore",
+                     "Runecraft", "Firemaking", "Construction", "Agility", "Thieving",
+                     "Slayer", "Farming"]
 
-Global ItemTypeCategories := Map(
+Global AllItemTypes := ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion",
+                        "Magic Potion", "Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf",
+                        "Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs",
+                        "Salmon", "Tuna", "Trout", "Mackerel", "Herring",
+                        "Copper Ore", "Tin Ore", "Iron Ore", "Coal", "Mithril Ore"]
+
+Global CategoryGroups := Map(
+    "Combat Skills", ["Ranged", "Magic", "Prayer"],
+    "Gathering Skills", ["Woodcutting", "Mining", "Fishing", "Hunter"],
+    "Artisan Skills", ["Cooking", "Fletching", "Crafting", "Smithing", "Herblore"],
+    "Support Skills", ["Runecraft", "Firemaking", "Construction", "Agility", "Thieving", "Slayer", "Farming"],
     "Potions", ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion", "Magic Potion"],
     "Herbs", ["Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf"],
     "Logs", ["Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs"],
@@ -276,21 +278,22 @@ try {
 ; ==========================================
 
 Global MyGui
-Global selectedTab := 1
+Global MainTabs
+Global selectedBankTab := 1
 Global tabConfigs := Map()
-Global tabButtons := Map()
-Global expandedGroups := Map()
-Global skillListboxes := Map()
-Global typeListboxes := Map()
+Global bankTabButtons := []
+Global categoryCheckboxes := Map()
+Global itemCheckboxes := Map()
+Global txtSelectedTabInfo
+Global lbxCurrentTabItems
 
-InitializeTabConfigs() {
-    Loop 8 {
-        tabKey := "tab_" (A_Index - 1)
-        if userCfg["BankCategories"].Has(tabKey) {
-            tabConfigs[tabKey] := userCfg["BankCategories"][tabKey]
-        } else {
-            tabConfigs[tabKey] := []
-        }
+; Initialize tab configurations
+Loop 8 {
+    tabKey := "tab_" (A_Index - 1)
+    if userCfg["BankCategories"].Has(tabKey) {
+        tabConfigs[tabKey] := userCfg["BankCategories"][tabKey]
+    } else {
+        tabConfigs[tabKey] := []
     }
 }
 
@@ -298,502 +301,363 @@ InitializeTabConfigs() {
 ; GUI INITIALIZATION
 ; ==========================================
 
-MyGui := Gui("+LastFound", "xh1px's Tidy Bank - Bank Configuration v2.2")
+MyGui := Gui("+LastFound", "xh1px's Tidy Bank - Configuration v3.0")
 MyGui.OnEvent("Close", (*) => ExitApp())
-
-; Initialize tab configurations from loaded settings
-InitializeTabConfigs()
-
-; Set colors using color system
-bgColor := "0x" . ColorSystem["PrimaryBg"]
-MyGui.BackColor := bgColor
+MyGui.BackColor := "0x" . ColorSystem["PrimaryBg"]
 MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
 
 ; ==========================================
-; HEADER SECTION
+; HEADER
 ; ==========================================
 
-; Header background
-headerPx := MyGui.Add("Text", "x0 y0 w1400 h100 c0x" . ColorSystem["PrimaryBg"], "")
-headerPx.Opt("-Background")
+MyGui.SetFont("s28 w700 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+MyGui.Add("Text", "x30 y20 w900", "xh1px's Tidy Bank")
 
-; Logo and title area
-logoTitleCtrl := MyGui.Add("Text", "x40 y20 w400 c0x" . ColorSystem["PrimaryAccent"], "xh1px's Tidy Bank")
-MyGui.SetFont("s32 w700", "Segoe UI")
-logoTitleCtrl.Value := "xh1px's Tidy Bank"
-
-MyGui.SetFont("s13 w400 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-subtitleCtrl := MyGui.Add("Text", "x40 y55 w400", "OSRS Bank Organization v2.2")
-subtitleCtrl.Value := "OSRS Bank Organization v2.2"
-
-; Status area (top right)
 MyGui.SetFont("s12 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-statusCtrl := MyGui.Add("Text", "x1200 y30 w150 h50 Right", "Ready")
+MyGui.Add("Text", "x30 y58 w900", "OSRS Bank Organization Tool - Configure your bot settings")
+
+; Divider
+MyGui.Add("Text", "x0 y95 w1000 h2 0x10 Background" . ColorSystem["InputBorder"], "")
 
 ; ==========================================
-; DIVIDER
+; TAB NAVIGATION
 ; ==========================================
 
-MyGui.Add("Text", "x0 y100 w1400 h1 c0x" . ColorSystem["InputBorder"], "")
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+MainTabs := MyGui.Add("Tab3", "x0 y100 w1000 h700", ["Bot Settings", "Bank Configuration"])
 
 ; ==========================================
-; MAIN CONTENT - LEFT COLUMN (BASIC SETTINGS)
+; TAB 1: BOT SETTINGS
 ; ==========================================
 
-contentStartY := 120
-leftColumnX := 40
-leftColumnWidth := 350
+MainTabs.UseTab(1)
 
-MyGui.SetFont("s18 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . leftColumnX " y" . contentStartY, "BASIC SETTINGS")
+; Create settings cards
+currentY := 140
 
-currentY := contentStartY + 40
+; === CARD: Anti-Ban Settings ===
+CreateCard(30, currentY, 450, 260, "Anti-Ban & Safety")
+cardY := currentY + 50
 
-; Anti-Ban Setting
-MyGui.SetFont("s13 w500 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-MyGui.Add("Text", "x" . leftColumnX " y" . currentY . " c0x" . ColorSystem["SecondaryText"], "Anti-Ban Mode")
-currentY += 22
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Anti-Ban Mode")
+cardY += 25
 
-ddlAntiBan := MyGui.Add("DropDownList", "x" . leftColumnX " y" . currentY " w" . leftColumnWidth, ["Psychopath", "Extreme", "Stealth", "Off"])
+ddlAntiBan := MyGui.Add("DropDownList", "x50 y" . cardY " w410", ["Psychopath", "Extreme", "Stealth", "Off"])
 ddlAntiBan.OnEvent("Change", SaveConfig)
 try {
     ddlAntiBan.Text := userCfg["AntiBan"]
 } catch {
     ddlAntiBan.Choose(1)
 }
-currentY += 45
+cardY += 50
 
-; Voice Alerts
-chkVoiceAlerts := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryText"], "Enable Voice Alerts")
-chkVoiceAlerts.OnEvent("Click", SaveConfig)
-try {
-    chkVoiceAlerts.Value := userCfg["VoiceAlerts"]
-} catch {
-    chkVoiceAlerts.Value := true
-}
-currentY += 35
-
-; World Hop
-chkWorldHop := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryText"], "World Hop (Rare)")
-chkWorldHop.OnEvent("Click", SaveConfig)
-try {
-    chkWorldHop.Value := userCfg["WorldHop"]
-} catch {
-    chkWorldHop.Value := false
-}
-currentY += 35
-
-; Enable OCR
-chkUseOCR := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryText"], "Enable OCR Item Detection")
-chkUseOCR.OnEvent("Click", SaveConfig)
-try {
-    chkUseOCR.Value := userCfg["UseOCR"]
-} catch {
-    chkUseOCR.Value := true
-}
-currentY += 35
-
-; Stealth Mode
-chkStealthMode := MyGui.Add("CheckBox", "x" . leftColumnX " y" . currentY " c0x" . ColorSystem["PrimaryAccent"], "STEALTH MODE (PRIMARY)")
+chkStealthMode := MyGui.Add("CheckBox", "x50 y" . cardY " c0x" . ColorSystem["PrimaryAccent"], "STEALTH MODE (Primary Safety)")
 chkStealthMode.OnEvent("Click", SaveConfig)
 try {
     chkStealthMode.Value := userCfg["StealthMode"]
 } catch {
     chkStealthMode.Value := true
 }
-currentY += 45
+cardY += 40
 
-; Max Session
-MyGui.SetFont("s13 w500 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-MyGui.Add("Text", "x" . leftColumnX " y" . currentY, "Max Session Duration")
-currentY += 22
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY " w410", "Stealth mode adds randomized delays and natural mouse movements to avoid detection.")
 
-MyGui.SetFont("s12 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-sldMaxSession := MyGui.Add("Slider", "x" . leftColumnX " y" . currentY " w" . leftColumnWidth . " Range60-480 TickInterval30 c0x" . ColorSystem["SecondaryAccent"], userCfg["MaxSession"])
+; === CARD: Session Settings ===
+currentY += 280
+CreateCard(30, currentY, 450, 180, "Session Configuration")
+cardY := currentY + 50
+
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Maximum Session Duration")
+cardY += 25
+
+sldMaxSession := MyGui.Add("Slider", "x50 y" . cardY " w410 Range60-480 TickInterval30", userCfg["MaxSession"])
 sldMaxSession.OnEvent("Change", UpdateSliderDisplay)
-currentY += 35
+cardY += 40
 
-MyGui.SetFont("s12 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-txtMaxSession := MyGui.Add("Text", "x" . leftColumnX " y" . currentY . " c0x" . ColorSystem["PrimaryAccent"], userCfg["MaxSession"] . " minutes")
+MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+txtMaxSession := MyGui.Add("Text", "x50 y" . cardY " w410 Center", userCfg["MaxSession"] . " minutes")
+
+; === CARD: Features ===
+currentY := 140
+CreateCard(510, currentY, 450, 360, "Feature Toggles")
+cardY := currentY + 50
+
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+
+chkUseOCR := MyGui.Add("CheckBox", "x530 y" . cardY, "Enable OCR Item Detection")
+chkUseOCR.OnEvent("Click", SaveConfig)
+try {
+    chkUseOCR.Value := userCfg["UseOCR"]
+} catch {
+    chkUseOCR.Value := true
+}
+cardY += 30
+
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x550 y" . cardY " w390", "Uses Tesseract OCR to identify items by name")
+cardY += 40
+
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+chkVoiceAlerts := MyGui.Add("CheckBox", "x530 y" . cardY, "Enable Voice Alerts")
+chkVoiceAlerts.OnEvent("Click", SaveConfig)
+try {
+    chkVoiceAlerts.Value := userCfg["VoiceAlerts"]
+} catch {
+    chkVoiceAlerts.Value := true
+}
+cardY += 30
+
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x550 y" . cardY " w390", "Provides audio notifications for important events")
+cardY += 40
+
+MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+chkWorldHop := MyGui.Add("CheckBox", "x530 y" . cardY, "Enable World Hopping (Rare)")
+chkWorldHop.OnEvent("Click", SaveConfig)
+try {
+    chkWorldHop.Value := userCfg["WorldHop"]
+} catch {
+    chkWorldHop.Value := false
+}
+cardY += 30
+
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x550 y" . cardY " w390", "Occasionally switches worlds to mimic human behavior")
+
+; === Action Buttons ===
+MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+btnSaveSettings := MyGui.Add("Button", "x30 y720 w200 h40", "Save Settings")
+btnSaveSettings.OnEvent("Click", SaveAllSettings)
+
+btnGenerateBot := MyGui.Add("Button", "x240 y720 w200 h40", "Generate Bot")
+btnGenerateBot.OnEvent("Click", GenerateBot)
+
+btnReset := MyGui.Add("Button", "x450 y720 w150 h40", "Reset to Defaults")
+btnReset.OnEvent("Click", (*) => ResetToDefaults())
 
 ; ==========================================
-; MAIN CONTENT - RIGHT COLUMN (BANK TABS & SELECTION)
+; TAB 2: BANK CONFIGURATION
 ; ==========================================
 
-rightColumnX := leftColumnX + leftColumnWidth + SpacingSystem["ColumnGap"]
-rightColumnWidth := 1000
+MainTabs.UseTab(2)
 
-MyGui.SetFont("s18 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . rightColumnX " y" . contentStartY, "BANK TABS & ITEM SELECTION")
+currentY := 140
 
-currentY := contentStartY + 40
+; === Bank Tab Selector ===
+CreateCard(30, currentY, 940, 200, "Select Bank Tab to Configure")
+cardY := currentY + 50
 
-; Tab buttons grid
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-tabGridY := currentY
-tabGridX := rightColumnX
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Choose a bank tab (1-8) to assign skills and items:")
+cardY += 35
+
+; Create bank tab buttons in a grid
+buttonStartX := 50
+buttonStartY := cardY
+buttonWidth := 100
+buttonHeight := 40
+buttonGapX := 110
+buttonGapY := 50
 
 Loop 8 {
     tabNum := A_Index
-    btnX := tabGridX + (Mod(tabNum - 1, 4) * 135)
-    btnY := tabGridY + (Floor((tabNum - 1) / 4) * 45)
+    col := Mod(tabNum - 1, 4)
+    row := Floor((tabNum - 1) / 4)
 
-    tabBtn := MyGui.Add("Button", "x" . btnX " y" . btnY " w120 h35", "Tab " . tabNum)
-    tabBtn.OnEvent("Click", (*) => SelectTab(tabNum))
-    tabButtons["tab_" (tabNum - 1)] := tabBtn
+    btnX := buttonStartX + (col * buttonGapX)
+    btnY := buttonStartY + (row * buttonGapY)
+
+    MyGui.SetFont("s11 w600", "Segoe UI")
+    btn := MyGui.Add("Button", "x" . btnX " y" . btnY " w" . buttonWidth " h" . buttonHeight, "Tab " . tabNum)
+    btn.OnEvent("Click", (*) => SelectBankTab(tabNum))
+    bankTabButtons.Push(btn)
 }
 
-currentY := tabGridY + 100
+; === Items Assignment Section ===
+currentY += 220
+CreateCard(30, currentY, 620, 420, "Available Skills & Items")
+cardY := currentY + 50
 
-; Selected tab info
-MyGui.SetFont("s13 w500 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-MyGui.Add("Text", "x" . rightColumnX " y" . currentY, "Tab Configuration:")
-currentY += 25
+MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY, "Select items to assign to this tab:")
+cardY += 30
 
-MyGui.SetFont("s12 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-txtSelectedTab := MyGui.Add("Text", "x" . rightColumnX " y" . currentY " c0x" . ColorSystem["PrimaryAccent"], "Selected: Tab 1 (0 items)")
+; Create TreeView for organized selection
+MyGui.SetFont("s10 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+tvCategories := MyGui.Add("TreeView", "x50 y" . cardY " w570 h340 Checked Background" . ColorSystem["SecondaryBg"])
+tvCategories.OnEvent("Click", UpdateBankTabFromTree)
 
-currentY += 35
+; Populate TreeView with categories
+Global tvNodes := Map()
+for categoryName, items in CategoryGroups {
+    parentNode := tvCategories.Add(categoryName, 0, "Expand")
+    tvNodes[categoryName] := Map("parent", parentNode, "children", Map())
 
-; ==========================================
-; ACCORDION-STYLE SELECTION SECTION
-; ==========================================
+    for item in items {
+        childNode := tvCategories.Add(item, parentNode)
+        tvNodes[categoryName]["children"][item] := childNode
+    }
+}
 
-accordionX := rightColumnX
-accordionY := currentY
-accordionWidth := rightColumnWidth - 20
+; === Current Tab Items ===
+CreateCard(670, currentY, 300, 420, "Current Tab Items")
+cardY := currentY + 50
 
-; Create collapsible skill groups
-MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . accordionX " y" . accordionY, "Select Skills & Items:")
-accordionY += 30
+MyGui.SetFont("s13 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+txtSelectedTabInfo := MyGui.Add("Text", "x690 y" . cardY " w260 Center", "Tab 1: 0 items")
+cardY += 35
 
-expandedGroups["Skills"] := false
-expandedGroups["Potions"] := false
-expandedGroups["Herbs"] := false
-expandedGroups["Logs"] := false
-expandedGroups["Fish"] := false
-expandedGroups["Ore"] := false
+MyGui.SetFont("s10 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
+lbxCurrentTabItems := MyGui.Add("ListBox", "x690 y" . cardY " w260 h340 Background" . ColorSystem["SecondaryBg"])
+lbxCurrentTabItems.OnEvent("DoubleClick", RemoveItemFromTab)
 
-; Skills Section
-btnSkillsToggle := MyGui.Add("Button", "x" . accordionX " y" . accordionY " w" . accordionWidth . " h30", "▶ Skills (Combat, Gathering, Crafting, Processing, Utility)")
-btnSkillsToggle.OnEvent("Click", (*) => ToggleAccordionGroup("Skills", accordionX, accordionY + 30, accordionWidth))
-accordionY += 35
+MyGui.SetFont("s9 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x690 y" . (cardY + 345) " w260 Center", "Double-click to remove")
 
-; Create containers for each section with multiple listboxes
-skillsContainerY := accordionY
-skillsColumnX1 := accordionX + 10
-skillsColumnX2 := accordionX + 270
-
-; Combat
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-skillsContainerY_local := skillsContainerY
-MyGui.Add("Text", "x" . skillsColumnX1 " y" . skillsContainerY_local, "Combat")
-skillsContainerY_local += 18
-
-combatList := MyGui.Add("ListBox", "x" . skillsColumnX1 " y" . skillsContainerY_local " w250 h80 Multi", ["Ranged", "Magic", "Prayer"])
-combatList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Combat"] := combatList
-skillsContainerY_local += 90
-
-; Gathering
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX1 " y" . skillsContainerY_local, "Gathering")
-skillsContainerY_local += 18
-
-gatheringList := MyGui.Add("ListBox", "x" . skillsColumnX1 " y" . skillsContainerY_local " w250 h100 Multi", ["Woodcutting", "Mining", "Fishing", "Hunter"])
-gatheringList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Gathering"] := gatheringList
-skillsContainerY_local += 110
-
-; Crafting
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX1 " y" . skillsContainerY_local, "Crafting")
-skillsContainerY_local += 18
-
-craftingList := MyGui.Add("ListBox", "x" . skillsColumnX1 " y" . skillsContainerY_local " w250 h100 Multi", ["Cooking", "Fletching", "Crafting", "Smithing", "Herblore"])
-craftingList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Crafting"] := craftingList
-skillsContainerY_local += 110
-
-; Processing & Utility combined on right
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX2 " y" . skillsContainerY, "Processing")
-skillsContainerY += 18
-
-processingList := MyGui.Add("ListBox", "x" . skillsColumnX2 " y" . skillsContainerY " w250 h80 Multi", ["Runecraft", "Firemaking", "Construction"])
-processingList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Processing"] := processingList
-skillsContainerY += 90
-
-; Utility
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . skillsColumnX2 " y" . skillsContainerY, "Utility")
-skillsContainerY += 18
-
-utilityList := MyGui.Add("ListBox", "x" . skillsColumnX2 " y" . skillsContainerY " w250 h100 Multi", ["Agility", "Thieving", "Slayer", "Farming"])
-utilityList.OnEvent("Change", UpdateSelectedItems)
-skillListboxes["Utility"] := utilityList
-skillsContainerY += 110
-
-accordionY := skillsContainerY + 20
-
-; Item Types Section
-btnItemsToggle := MyGui.Add("Button", "x" . accordionX " y" . accordionY " w" . accordionWidth . " h30", "▶ Item Types (Potions, Herbs, Logs, Fish, Ore)")
-btnItemsToggle.OnEvent("Click", (*) => ToggleAccordionGroup("Items", accordionX, accordionY + 30, accordionWidth))
-accordionY += 35
-
-; Create item type listboxes
-itemsContainerY := accordionY
-itemsColumnX1 := accordionX + 10
-itemsColumnX2 := accordionX + 270
-
-; Potions
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-itemsContainerY_local := itemsContainerY
-MyGui.Add("Text", "x" . itemsColumnX1 " y" . itemsContainerY_local, "Potions")
-itemsContainerY_local += 18
-
-potionsList := MyGui.Add("ListBox", "x" . itemsColumnX1 " y" . itemsContainerY_local " w250 h100 Multi", ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion", "Magic Potion"])
-potionsList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Potions"] := potionsList
-itemsContainerY_local += 110
-
-; Herbs
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX1 " y" . itemsContainerY_local, "Herbs")
-itemsContainerY_local += 18
-
-herbsList := MyGui.Add("ListBox", "x" . itemsColumnX1 " y" . itemsContainerY_local " w250 h100 Multi", ["Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf"])
-herbsList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Herbs"] := herbsList
-itemsContainerY_local += 110
-
-; Logs
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX2 " y" . itemsContainerY, "Logs")
-itemsContainerY += 18
-
-logsList := MyGui.Add("ListBox", "x" . itemsColumnX2 " y" . itemsContainerY " w250 h100 Multi", ["Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs"])
-logsList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Logs"] := logsList
-itemsContainerY += 110
-
-; Fish
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX2 " y" . itemsContainerY, "Fish")
-itemsContainerY += 18
-
-fishList := MyGui.Add("ListBox", "x" . itemsColumnX2 " y" . itemsContainerY " w250 h100 Multi", ["Salmon", "Tuna", "Trout", "Mackerel", "Herring"])
-fishList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Fish"] := fishList
-itemsContainerY += 110
-
-; Ore
-MyGui.SetFont("s10 w600 c0x" . ColorSystem["SecondaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . itemsColumnX1 " y" . itemsContainerY_local, "Ore")
-itemsContainerY_local += 18
-
-oreList := MyGui.Add("ListBox", "x" . itemsColumnX1 " y" . itemsContainerY_local " w250 h100 Multi", ["Copper Ore", "Tin Ore", "Iron Ore", "Coal", "Mithril Ore"])
-oreList.OnEvent("Change", UpdateSelectedItems)
-typeListboxes["Ore"] := oreList
-itemsContainerY_local += 110
-
-maxY := Max(itemsContainerY, itemsContainerY_local) + 30
-
-; ==========================================
-; SELECTED ITEMS DISPLAY
-; ==========================================
-
-selectedDisplayX := rightColumnX + rightColumnWidth + 20
-selectedDisplayY := contentStartY + 40
-selectedDisplayWidth := 250
-
-MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-MyGui.Add("Text", "x" . selectedDisplayX " y" . selectedDisplayY, "Selected Items:")
-selectedDisplayY += 25
-
-MyGui.SetFont("s11 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-lbxTabItems := MyGui.Add("ListBox", "x" . selectedDisplayX " y" . selectedDisplayY " w" . selectedDisplayWidth . " h" . (maxY - selectedDisplayY) . " Multi", [])
-lbxTabItems.OnEvent("DoubleClick", RemoveTabItem)
-Global lbxTabItems
-
-; ==========================================
-; BOTTOM SECTION - BUTTONS
-; ==========================================
-
-bottomY := maxY + 30
-
+; === Action Buttons ===
+currentY += 440
 MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
 
-; Save Settings Button
-btnSave := MyGui.Add("Button", "x40 y" . bottomY " w150 h35 c0x" . ColorSystem["PrimaryAccent"], "Save Settings")
-btnSave.OnEvent("Click", SaveAllSettings)
+btnSaveBank := MyGui.Add("Button", "x30 y" . currentY " w200 h40", "Save Bank Config")
+btnSaveBank.OnEvent("Click", SaveAllSettings)
 
-; Generate Bot Button
-btnGenerate := MyGui.Add("Button", "x200 y" . bottomY " w150 h35 c0x" . ColorSystem["PrimaryAccent"], "Generate Bot")
-btnGenerate.OnEvent("Click", GenerateBot)
+btnClearTab := MyGui.Add("Button", "x240 y" . currentY " w150 h40", "Clear This Tab")
+btnClearTab.OnEvent("Click", (*) => ClearCurrentBankTab())
 
-; Reset Button
-btnReset := MyGui.Add("Button", "x360 y" . bottomY " w120 h35 c0x" . ColorSystem["PrimaryAccent"], "Reset")
-btnReset.OnEvent("Click", (*) => ResetCategories())
+btnResetAll := MyGui.Add("Button", "x400 y" . currentY " w150 h40", "Reset All Tabs")
+btnResetAll.OnEvent("Click", (*) => ResetToDefaults())
 
-; Status text (bottom right)
-MyGui.SetFont("s12 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-txtStatus := MyGui.Add("Text", "x1200 y" . bottomY " w150 h35 Right", "Ready")
+MainTabs.UseTab()  ; End tab definition
 
 ; ==========================================
 ; SHOW GUI
 ; ==========================================
 
-guiHeight := bottomY + 50
-MyGui.Show("w1400 h" . guiHeight)
+MyGui.Show("w1000 h800")
 
-; Initialize the interface
-SelectTab(1)
+; Initialize
+SelectBankTab(1)
+
+; ==========================================
+; HELPER FUNCTIONS
+; ==========================================
+
+CreateCard(x, y, width, height, title) {
+    global MyGui, ColorSystem
+
+    ; Card background
+    MyGui.Add("Text", "x" . x " y" . y " w" . width " h" . height " Background" . ColorSystem["SecondaryBg"], "")
+
+    ; Card title bar
+    MyGui.Add("Text", "x" . x " y" . y " w" . width " h35 Background" . ColorSystem["TertiaryBg"], "")
+
+    ; Card title text
+    MyGui.SetFont("s13 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
+    MyGui.Add("Text", "x" . (x + 15) " y" . (y + 8) " Background" . ColorSystem["TertiaryBg"], title)
+}
 
 ; ==========================================
 ; EVENT HANDLERS
 ; ==========================================
 
-ToggleAccordionGroup(groupName, x, y, width) {
-    global expandedGroups
+SelectBankTab(tabNum) {
+    global selectedBankTab, bankTabButtons, tabConfigs, txtSelectedTabInfo, lbxCurrentTabItems, tvCategories, tvNodes, ColorSystem
 
-    ; Toggle state
-    expandedGroups[groupName] := !expandedGroups[groupName]
-
-    ; Update button appearance (▶ vs ▼)
-    ; This would require more complex GUI manipulation in AutoHotkey v2.0
-    ; For now, we'll keep the functionality working
-}
-
-SelectTab(tabNum) {
-    global selectedTab, txtSelectedTab, tabConfigs, lbxTabItems, skillListboxes, typeListboxes
-
-    selectedTab := tabNum
+    selectedBankTab := tabNum
     tabKey := "tab_" (tabNum - 1)
 
-    ; Update the display with correct tab number
-    itemCount := tabConfigs[tabKey].Length
-    txtSelectedTab.Value := "Selected: Tab " . tabNum . " (" . itemCount . " items)"
-
-    ; Update ListBox with current tab items
-    lbxTabItems.Delete()
-    for item in tabConfigs[tabKey] {
-        lbxTabItems.Add([item])
-    }
-
-    ; Uncheck all skill listboxes
-    for group, listbox in skillListboxes {
-        listbox.Value := ""
-    }
-
-    ; Uncheck all type listboxes
-    for group, listbox in typeListboxes {
-        listbox.Value := ""
-    }
-
-    ; Check the appropriate items in skill listboxes
-    for skill, listbox in skillListboxes {
-        Loop Parse, listbox.GetText(0), "|" {
-            item := A_LoopField
-            for tabItem in tabConfigs[tabKey] {
-                if (tabItem == item) {
-                    ; Find and select this item in the listbox
-                    Loop listbox.GetCount() {
-                        if (listbox.GetText(A_Index) == item) {
-                            listbox.Choose(A_Index)
-                            break
-                        }
-                    }
-                    break
-                }
-            }
+    ; Update button visual states
+    Loop 8 {
+        if (A_Index == tabNum) {
+            bankTabButtons[A_Index].Opt("+Background" . ColorSystem["PrimaryAccent"])
+            MyGui.SetFont("s11 w700 c0x" . ColorSystem["PrimaryBg"], "Segoe UI")
+            bankTabButtons[A_Index].SetFont()
+        } else {
+            bankTabButtons[A_Index].Opt("+BackgroundDefault")
+            MyGui.SetFont("s11 w600 c0xFFFFFF", "Segoe UI")
+            bankTabButtons[A_Index].SetFont()
         }
     }
 
-    ; Check the appropriate items in type listboxes
-    for type, listbox in typeListboxes {
-        Loop Parse, listbox.GetText(0), "|" {
-            item := A_LoopField
+    ; Update info text
+    itemCount := tabConfigs[tabKey].Length
+    txtSelectedTabInfo.Value := "Tab " . tabNum . ": " . itemCount . " items"
+
+    ; Update current items listbox
+    lbxCurrentTabItems.Delete()
+    for item in tabConfigs[tabKey] {
+        lbxCurrentTabItems.Add([item])
+    }
+
+    ; Update TreeView checkboxes
+    for categoryName, categoryData in tvNodes {
+        for item, nodeID in categoryData["children"] {
+            isChecked := false
             for tabItem in tabConfigs[tabKey] {
                 if (tabItem == item) {
-                    Loop listbox.GetCount() {
-                        if (listbox.GetText(A_Index) == item) {
-                            listbox.Choose(A_Index)
-                            break
-                        }
-                    }
+                    isChecked := true
                     break
                 }
             }
+            tvCategories.Modify(nodeID, isChecked ? "Check" : "-Check")
         }
     }
 }
 
-UpdateSelectedItems(GuiCtrlObj, Info, *) {
-    global selectedTab, tabConfigs, lbxTabItems, txtSelectedTab, skillListboxes, typeListboxes
+UpdateBankTabFromTree(*) {
+    global selectedBankTab, tabConfigs, tvCategories, tvNodes, lbxCurrentTabItems, txtSelectedTabInfo
 
-    tabKey := "tab_" (selectedTab - 1)
+    tabKey := "tab_" (selectedBankTab - 1)
     tabConfigs[tabKey] := []
 
-    ; Collect all selected items from skill listboxes
-    for group, listbox in skillListboxes {
-        selected := listbox.Value
-        Loop Parse, selected, "|" {
-            if (A_LoopField != "") {
-                selectedIndex := A_LoopField
-                if (selectedIndex > 0) {
-                    item := listbox.GetText(selectedIndex)
-                    if (item != "") {
+    ; Collect all checked items from TreeView
+    for categoryName, categoryData in tvNodes {
+        for item, nodeID in categoryData["children"] {
+            if (tvCategories.GetNext(nodeID, "Checked") == nodeID || tvCategories.GetNext(0, "Checked " nodeID)) {
+                ; Check if this node is checked
+                itemText := tvCategories.GetText(nodeID)
+
+                ; Verify it's actually checked
+                currentItem := tvCategories.GetNext(0, "Checked")
+                loop {
+                    if (!currentItem)
+                        break
+                    if (currentItem == nodeID) {
                         tabConfigs[tabKey].Push(item)
+                        break
                     }
+                    currentItem := tvCategories.GetNext(currentItem, "Checked")
                 }
             }
         }
     }
 
-    ; Collect all selected items from type listboxes
-    for type, listbox in typeListboxes {
-        selected := listbox.Value
-        Loop Parse, selected, "|" {
-            if (A_LoopField != "") {
-                selectedIndex := A_LoopField
-                if (selectedIndex > 0) {
-                    item := listbox.GetText(selectedIndex)
-                    if (item != "") {
-                        tabConfigs[tabKey].Push(item)
-                    }
-                }
-            }
-        }
+    ; Update display
+    lbxCurrentTabItems.Delete()
+    for item in tabConfigs[tabKey] {
+        lbxCurrentTabItems.Add([item])
     }
 
-    ; Update ListBox display
-    lbxTabItems.Delete()
-    for selectedItem in tabConfigs[tabKey] {
-        lbxTabItems.Add([selectedItem])
-    }
-
-    ; Update item count
-    txtSelectedTab.Value := "Selected: Tab " . selectedTab . " (" . tabConfigs[tabKey].Length . " items)"
+    txtSelectedTabInfo.Value := "Tab " . selectedBankTab . ": " . tabConfigs[tabKey].Length . " items"
 }
 
-RemoveTabItem(GuiCtrlObj, Info, *) {
-    global selectedTab, tabConfigs, lbxTabItems, txtSelectedTab, skillListboxes, typeListboxes
+RemoveItemFromTab(*) {
+    global selectedBankTab, tabConfigs, lbxCurrentTabItems, txtSelectedTabInfo, tvCategories, tvNodes
 
-    tabKey := "tab_" (selectedTab - 1)
-
-    ; Get the selected item from ListBox
-    selectedIndex := lbxTabItems.Value
+    selectedIndex := lbxCurrentTabItems.Value
     if (selectedIndex == 0)
         return
 
-    itemToRemove := lbxTabItems.GetText(selectedIndex)
+    itemToRemove := lbxCurrentTabItems.GetText(selectedIndex)
     if (itemToRemove == "")
         return
 
-    ; Remove from tabConfigs
+    tabKey := "tab_" (selectedBankTab - 1)
+
+    ; Remove from config
     Loop (tabConfigs[tabKey].Length) {
         if (tabConfigs[tabKey][A_Index] == itemToRemove) {
             tabConfigs[tabKey].RemoveAt(A_Index)
@@ -801,31 +665,64 @@ RemoveTabItem(GuiCtrlObj, Info, *) {
         }
     }
 
-    ; Uncheck from skill listboxes
-    for group, listbox in skillListboxes {
-        Loop listbox.GetCount() {
-            if (listbox.GetText(A_Index) == itemToRemove) {
-                ; Deselect this item
-                ; In AutoHotkey v2.0 ListBox, we need to rebuild the selection
-                break
-            }
+    ; Uncheck in TreeView
+    for categoryName, categoryData in tvNodes {
+        if (categoryData["children"].Has(itemToRemove)) {
+            nodeID := categoryData["children"][itemToRemove]
+            tvCategories.Modify(nodeID, "-Check")
+            break
         }
     }
-
-    ; Uncheck from type listboxes
-    for type, listbox in typeListboxes {
-        Loop listbox.GetCount() {
-            if (listbox.GetText(A_Index) == itemToRemove) {
-                break
-            }
-        }
-    }
-
-    ; Remove from ListBox
-    lbxTabItems.Delete(selectedIndex)
 
     ; Update display
-    txtSelectedTab.Value := "Selected: Tab " . selectedTab . " (" . tabConfigs[tabKey].Length . " items)"
+    lbxCurrentTabItems.Delete(selectedIndex)
+    txtSelectedTabInfo.Value := "Tab " . selectedBankTab . ": " . tabConfigs[tabKey].Length . " items"
+}
+
+ClearCurrentBankTab() {
+    global selectedBankTab, tabConfigs, tvCategories, tvNodes
+
+    result := MsgBox("Clear all items from Tab " . selectedBankTab . "?", "Confirm Clear", "YN Icon?")
+    if (result != "Yes")
+        return
+
+    tabKey := "tab_" (selectedBankTab - 1)
+    tabConfigs[tabKey] := []
+
+    ; Uncheck all items in TreeView
+    for categoryName, categoryData in tvNodes {
+        for item, nodeID in categoryData["children"] {
+            tvCategories.Modify(nodeID, "-Check")
+        }
+    }
+
+    SelectBankTab(selectedBankTab)
+}
+
+ResetToDefaults() {
+    global tabConfigs, defaultCfg, selectedBankTab
+
+    result := MsgBox("Reset all settings to defaults?", "Confirm Reset", "YN Icon!")
+    if (result != "Yes")
+        return
+
+    ; Reset tab configs
+    for key, value in defaultCfg["BankCategories"] {
+        tabConfigs[key] := value.Clone()
+    }
+
+    ; Reset other settings
+    ddlAntiBan.Text := defaultCfg["AntiBan"]
+    chkVoiceAlerts.Value := defaultCfg["VoiceAlerts"]
+    chkWorldHop.Value := defaultCfg["WorldHop"]
+    sldMaxSession.Value := defaultCfg["MaxSession"]
+    chkUseOCR.Value := defaultCfg["UseOCR"]
+    chkStealthMode.Value := defaultCfg["StealthMode"]
+
+    UpdateSliderDisplay()
+    SelectBankTab(selectedBankTab)
+
+    MsgBox("Settings reset to defaults!", "Success", "Iconi")
 }
 
 UpdateSliderDisplay(*) {
@@ -843,16 +740,10 @@ SaveConfig(*) {
     userCfg["UseOCR"] := chkUseOCR.Value
     userCfg["StealthMode"] := chkStealthMode.Value
     userCfg["SortMode"] := "Category"
-
-    try {
-        if FileExist(cfgFile)
-            FileDelete(cfgFile)
-        FileAppend(JSON.Stringify(userCfg), cfgFile)
-    }
 }
 
 SaveAllSettings(*) {
-    global userCfg, cfgFile, txtStatus, tabConfigs
+    global userCfg, cfgFile, tabConfigs
 
     SaveConfig()
     userCfg["BankCategories"] := tabConfigs
@@ -861,50 +752,29 @@ SaveAllSettings(*) {
         if FileExist(cfgFile)
             FileDelete(cfgFile)
         FileAppend(JSON.Stringify(userCfg), cfgFile)
-        txtStatus.Value := "✓ Saved"
-        SetTimer(() => txtStatus.Value := "Ready", -2000)
+        MsgBox("Settings saved successfully!", "Success", "Iconi")
     } catch as err {
-        MsgBox("Error saving: " . err.Message, "Error", 16)
-        txtStatus.Value := "Error"
+        MsgBox("Error saving settings: " . err.Message, "Error", "Icon!")
     }
-}
-
-ResetCategories() {
-    global tabConfigs, selectedTab
-
-    result := MsgBox("Reset all tabs to defaults?", "Confirm Reset", 4)
-    if (result != "Yes") {
-        return
-    }
-
-    tabConfigs["tab_0"] := ["Ranged", "Magic"]
-    tabConfigs["tab_1"] := ["Prayer", "Agility"]
-    tabConfigs["tab_2"] := ["Cooking", "Fletching"]
-    tabConfigs["tab_3"] := ["Crafting", "Smithing"]
-    tabConfigs["tab_4"] := ["Mining", "Woodcutting"]
-    tabConfigs["tab_5"] := ["Fishing", "Hunter"]
-    tabConfigs["tab_6"] := []
-    tabConfigs["tab_7"] := []
-
-    SelectTab(selectedTab)
 }
 
 GenerateBot(*) {
-    global txtStatus, userCfg, cfgFile
+    global userCfg, cfgFile
 
-    result := MsgBox("Generate bot from current settings?", "xh1px's Tidy Bank - Generate", "YN Icon?")
-    if (result == "Yes") {
-        SaveAllSettings()
+    result := MsgBox("Generate bot from current settings?`n`nThis will create main.ahk with your configuration.", "Generate Bot", "YN Icon?")
+    if (result != "Yes")
+        return
 
-        if FileExist(A_ScriptDir "\generate_main.ahk") {
-            try {
-                Run('"' A_AhkPath '" "' A_ScriptDir '\generate_main.ahk"')
-                txtStatus.Value := "Generating..."
-            } catch as err {
-                MsgBox("Error: " . err.Message, "Error", 16)
-            }
-        } else {
-            MsgBox("Missing: generate_main.ahk", "Error", 48)
+    SaveAllSettings()
+
+    if FileExist(A_ScriptDir "\generate_main.ahk") {
+        try {
+            Run('"' A_AhkPath '" "' A_ScriptDir '\generate_main.ahk"')
+            MsgBox("Bot generation started!`n`nCheck console for progress.", "Generating", "Iconi")
+        } catch as err {
+            MsgBox("Error: " . err.Message, "Error", "Icon!")
         }
+    } else {
+        MsgBox("Missing file: generate_main.ahk`n`nPlease ensure all files are present.", "Error", "Icon!")
     }
 }
