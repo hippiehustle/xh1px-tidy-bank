@@ -579,11 +579,42 @@ MainTabs.UseTab()  ; End tab definition
 MyGui.Show("w1000 h800")
 
 ; Initialize
+LoadExistingAssignments()  ; Load saved config into groupToTab
 SelectBankTabExclusive(1)
 
 ; ==========================================
 ; HELPER FUNCTIONS
 ; ==========================================
+
+LoadExistingAssignments() {
+    ; Convert tabConfigs to groupToTab format when loading existing config
+    global tabConfigs, groupToTab, groupRows
+
+    ; Clear existing assignments
+    groupToTab := Map()
+
+    ; Build a set of valid group names from groupRows for validation
+    validGroupNames := Map()
+    for rowNum, rowInfo in groupRows {
+        groupName := rowInfo["name"]
+        validGroupNames[groupName] := true
+    }
+
+    ; Load assignments from tabConfigs
+    for tabKey, categories in tabConfigs {
+        tabNum := Integer(SubStr(tabKey, 5)) + 1  ; "tab_0" -> 1, "tab_1" -> 2, etc.
+
+        for category in categories {
+            ; Only add if the category name exists in groupRows
+            if validGroupNames.Has(category) {
+                groupToTab[category] := tabNum
+            } else {
+                ; Log warning for unknown categories (legacy names that don't match)
+                ; In future, could add mapping logic here
+            }
+        }
+    }
+}
 
 CreateCard(x, y, width, height, title) {
     global MyGui, ColorSystem
@@ -695,6 +726,31 @@ OnGroupCheckChanged(GuiCtrlObj, Item, IsChecked) {
     }
 
     if IsChecked {
+        ; If this is a CORE group, check if any subgroups are already assigned to a different tab
+        if groupType == "CORE" && coreGroupChildren.Has(groupName) {
+            conflictingSubgroups := []
+            for subgroupRow in coreGroupChildren[groupName] {
+                subgroupInfo := groupRows[subgroupRow]
+                subgroupName := subgroupInfo["name"]
+
+                ; Check if subgroup is assigned to a different tab
+                if groupToTab.Has(subgroupName) && groupToTab[subgroupName] != selectedBankTab {
+                    conflictingSubgroups.Push(subgroupName . " (Tab " . groupToTab[subgroupName] . ")")
+                }
+            }
+
+            ; If there are conflicts, prevent assignment and show message
+            if conflictingSubgroups.Length > 0 {
+                lvGroupsCtrl.Modify(Item, "-Check")
+                conflictList := ""
+                for conflict in conflictingSubgroups {
+                    conflictList .= "`n  - " . conflict
+                }
+                MsgBox("Cannot assign " . groupName . " to Tab " . selectedBankTab . " because some subgroups are already assigned to other tabs:" . conflictList . "`n`nPlease remove those subgroups from their current tabs first.", "Conflicting Assignments", "Icon!")
+                return
+            }
+        }
+
         ; Assign to current tab
         groupToTab[groupName] := selectedBankTab
 
@@ -891,7 +947,7 @@ SaveAllSettingsExclusive(*) {
 }
 
 ResetToDefaults() {
-    global tabConfigs, defaultCfg, selectedBankTab
+    global tabConfigs, defaultCfg, selectedBankTab, groupToTab
 
     result := MsgBox("Reset all settings to defaults?", "Confirm Reset", "YN Icon!")
     if (result != "Yes")
@@ -900,6 +956,15 @@ ResetToDefaults() {
     ; Reset tab configs
     for key, value in defaultCfg["BankCategories"] {
         tabConfigs[key] := value.Clone()
+    }
+
+    ; Reset groupToTab from default config
+    groupToTab := Map()
+    for tabKey, categories in defaultCfg["BankCategories"] {
+        tabNum := Integer(SubStr(tabKey, 5)) + 1  ; "tab_0" -> 1, "tab_1" -> 2, etc.
+        for category in categories {
+            groupToTab[category] := tabNum
+        }
     }
 
     ; Reset other settings
@@ -934,9 +999,24 @@ SaveConfig(*) {
 }
 
 SaveAllSettings(*) {
-    global userCfg, cfgFile, tabConfigs
+    ; This function is called by the "Save Settings" button in Bot Settings tab
+    ; It should save bot settings AND sync with the exclusive assignment system
+    global userCfg, cfgFile, tabConfigs, groupToTab
 
-    SaveConfig()
+    SaveConfig()  ; Save bot settings (AntiBan, VoiceAlerts, etc.)
+
+    ; Convert groupToTab to tabConfigs format for consistency
+    newTabConfigs := Map()
+    Loop 8 {
+        newTabConfigs["tab_" . (A_Index - 1)] := []
+    }
+
+    for groupName, tabNum in groupToTab {
+        tabKey := "tab_" . (tabNum - 1)
+        newTabConfigs[tabKey].Push(groupName)
+    }
+
+    tabConfigs := newTabConfigs
     userCfg["BankCategories"] := tabConfigs
 
     try {
@@ -975,11 +1055,8 @@ GenerateMainScript() {
         ; Read the template
         templateFile := A_ScriptDir "\main_template_v2.ahk"
         if !FileExist(templateFile) {
-            MsgBox("Template file not found: " . templateFile . "`n`nUsing fallback template.", "Warning", "Icon!")
-            templateFile := A_ScriptDir "\main_template.ahk"
-            if !FileExist(templateFile) {
-                return false
-            }
+            MsgBox("Template file not found: " . templateFile . "`n`nPlease ensure main_template_v2.ahk is present in the script directory.", "Error", "Icon!")
+            return false
         }
 
         content := FileRead(templateFile)
@@ -1031,7 +1108,9 @@ GenerateBankCategoriesCode(tabConfigs) {
                 code .= ", "
             }
             catFirst := false
-            code .= '"' . category . '"'
+            ; Escape quotes and backslashes in category names
+            escapedCategory := StrReplace(StrReplace(category, "\", "\\"), '"', '\"')
+            code .= '"' . escapedCategory . '"'
         }
 
         code .= "]"
