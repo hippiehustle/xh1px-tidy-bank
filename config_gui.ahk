@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+#Include item_grouping.ahk
 
 ; ==========================================
 ; xh1px's Tidy Bank - Configuration GUI v3.0
@@ -203,33 +204,6 @@ class JSON {
 }
 
 ; ==========================================
-; CATEGORY DEFINITIONS
-; ==========================================
-
-Global AllSkills := ["Ranged", "Magic", "Prayer", "Woodcutting", "Mining", "Fishing",
-                     "Hunter", "Cooking", "Fletching", "Crafting", "Smithing", "Herblore",
-                     "Runecraft", "Firemaking", "Construction", "Agility", "Thieving",
-                     "Slayer", "Farming"]
-
-Global AllItemTypes := ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion",
-                        "Magic Potion", "Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf",
-                        "Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs",
-                        "Salmon", "Tuna", "Trout", "Mackerel", "Herring",
-                        "Copper Ore", "Tin Ore", "Iron Ore", "Coal", "Mithril Ore"]
-
-Global CategoryGroups := Map(
-    "Combat Skills", ["Ranged", "Magic", "Prayer"],
-    "Gathering Skills", ["Woodcutting", "Mining", "Fishing", "Hunter"],
-    "Artisan Skills", ["Cooking", "Fletching", "Crafting", "Smithing", "Herblore"],
-    "Support Skills", ["Runecraft", "Firemaking", "Construction", "Agility", "Thieving", "Slayer", "Farming"],
-    "Potions", ["Stamina Potion", "Strength Potion", "Attack Potion", "Defense Potion", "Magic Potion"],
-    "Herbs", ["Guam", "Marrentill", "Tarromin", "Spidermine", "Irit Leaf"],
-    "Logs", ["Logs", "Oak Logs", "Willow Logs", "Maple Logs", "Yew Logs"],
-    "Fish", ["Salmon", "Tuna", "Trout", "Mackerel", "Herring"],
-    "Ore", ["Copper Ore", "Tin Ore", "Iron Ore", "Coal", "Mithril Ore"]
-)
-
-; ==========================================
 ; DEFAULT CONFIGURATION
 ; ==========================================
 
@@ -242,12 +216,12 @@ Global defaultCfg := Map(
     "UseOCR", true,
     "StealthMode", true,
     "BankCategories", Map(
-        "tab_0", ["Ranged", "Magic"],
-        "tab_1", ["Prayer", "Agility"],
-        "tab_2", ["Cooking", "Fletching"],
-        "tab_3", ["Crafting", "Smithing"],
-        "tab_4", ["Mining", "Woodcutting"],
-        "tab_5", ["Fishing", "Hunter"],
+        "tab_0", ["Skills"],
+        "tab_1", ["Equipment"],
+        "tab_2", ["Consumables"],
+        "tab_3", ["Resources"],
+        "tab_4", ["Tools"],
+        "tab_5", ["Currency"],
         "tab_6", [],
         "tab_7", []
     )
@@ -282,10 +256,12 @@ Global MainTabs
 Global selectedBankTab := 1
 Global tabConfigs := Map()
 Global bankTabButtons := []
-Global categoryCheckboxes := Map()
-Global itemCheckboxes := Map()
-Global txtSelectedTabInfo
-Global lbxCurrentTabItems
+Global lvGroupsCtrl
+Global groupRows := Map()
+Global groupToTab := Map()
+Global coreGroupChildren := Map()
+Global txtSelectedTabInfoExclusive
+Global lbxCurrentTabGroups
 
 ; Initialize tab configurations
 Loop 8 {
@@ -439,7 +415,8 @@ btnReset := MyGui.Add("Button", "x450 y720 w150 h40", "Reset to Defaults")
 btnReset.OnEvent("Click", (*) => ResetToDefaults())
 
 ; ==========================================
-; TAB 2: BANK CONFIGURATION
+; TAB 2: BANK CONFIGURATION - REDESIGNED
+; Exclusive Group Assignment System
 ; ==========================================
 
 MainTabs.UseTab(2)
@@ -447,12 +424,12 @@ MainTabs.UseTab(2)
 currentY := 140
 
 ; === Bank Tab Selector ===
-CreateCard(30, currentY, 940, 200, "Select Bank Tab to Configure")
+CreateCard(30, currentY, 940, 150, "Select Bank Tab to Configure")
 cardY := currentY + 50
 
 MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-MyGui.Add("Text", "x50 y" . cardY, "Choose a bank tab (1-8) to assign skills and items:")
-cardY += 35
+MyGui.Add("Text", "x50 y" . cardY, "Choose a bank tab (1-8) to assign core groups and subgroups:")
+cardY += 30
 
 ; Create bank tab buttons in a grid
 buttonStartX := 50
@@ -460,75 +437,138 @@ buttonStartY := cardY
 buttonWidth := 100
 buttonHeight := 40
 buttonGapX := 110
-buttonGapY := 50
 
 Loop 8 {
     tabNum := A_Index
-    col := Mod(tabNum - 1, 4)
-    row := Floor((tabNum - 1) / 4)
-
-    btnX := buttonStartX + (col * buttonGapX)
-    btnY := buttonStartY + (row * buttonGapY)
+    btnX := buttonStartX + ((tabNum - 1) * buttonGapX)
 
     MyGui.SetFont("s11 w600", "Segoe UI")
-    btn := MyGui.Add("Button", "x" . btnX " y" . btnY " w" . buttonWidth " h" . buttonHeight, "Tab " . tabNum)
-    btn.OnEvent("Click", (*) => SelectBankTab(tabNum))
+    btn := MyGui.Add("Button", "x" . btnX " y" . buttonStartY " w" . buttonWidth " h" . buttonHeight, "Tab " . tabNum)
+    btn.OnEvent("Click", (*) => SelectBankTabExclusive(tabNum))
     bankTabButtons.Push(btn)
 }
 
-; === Items Assignment Section ===
-currentY += 220
-CreateCard(30, currentY, 620, 420, "Available Skills & Items")
+; === Available Core Groups & Subgroups ===
+currentY += 170
+CreateCard(30, currentY, 620, 480, "Available Core Groups & Subgroups")
 cardY := currentY + 50
 
-MyGui.SetFont("s11 c0x" . ColorSystem["SecondaryText"], "Segoe UI")
-MyGui.Add("Text", "x50 y" . cardY, "Select items to assign to this tab:")
-cardY += 30
+MyGui.SetFont("s10 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
+MyGui.Add("Text", "x50 y" . cardY " w580", "Check a core group to auto-select all its subgroups. Once assigned, groups are locked to that tab.")
+cardY += 25
 
-; Create TreeView for organized selection
+; Create scrollable list view for core groups and subgroups
 MyGui.SetFont("s10 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-tvCategories := MyGui.Add("TreeView", "x50 y" . cardY " w570 h340 Checked Background" . ColorSystem["SecondaryBg"])
-tvCategories.OnEvent("Click", UpdateBankTabFromTree)
+lvGroups := MyGui.Add("ListView", "x50 y" . cardY " w570 h390 Checked Grid Background" . ColorSystem["SecondaryBg"], ["Group Name", "Type", "Assigned To"])
+lvGroups.OnEvent("ItemCheck", OnGroupCheckChanged)
+lvGroups.OnEvent("Click", OnGroupClick)
 
-; Populate TreeView with categories
-Global tvNodes := Map()
-for categoryName, items in CategoryGroups {
-    parentNode := tvCategories.Add(categoryName, 0, "Expand")
-    tvNodes[categoryName] := Map("parent", parentNode, "children", Map())
+; Populate with all core groups and subgroups from ItemGroupingSystem
+lvGroupsCtrl := lvGroups
+groupRows := Map()
+groupToTab := Map()
+coreGroupChildren := Map()
 
-    for item in items {
-        childNode := tvCategories.Add(item, parentNode)
-        tvNodes[categoryName]["children"][item] := childNode
+rowNum := 0
+
+; Add CORE GROUPS first
+for coreGroupKey, coreGroupName in ItemGroupingSystem.CORE_GROUPS {
+    rowNum++
+    lvGroups.Add("", coreGroupName, "CORE", "")
+
+    groupRows[rowNum] := Map(
+        "name", coreGroupName,
+        "key", coreGroupKey,
+        "type", "CORE",
+        "parentRow", 0
+    )
+
+    coreGroupChildren[coreGroupName] := []
+}
+
+; Add SUBGROUPS under their respective core groups
+for subgroupKey, subgroupName in ItemGroupingSystem.SUBGROUPS {
+    rowNum++
+
+    ; Determine parent core group from tag prefix
+    parentCore := ""
+    if InStr(subgroupKey, "skill_") == 1 {
+        parentCore := "Skills"
+    } else if InStr(subgroupKey, "equip_") == 1 {
+        parentCore := "Equipment"
+    } else if InStr(subgroupKey, "resource_") == 1 {
+        parentCore := "Resources"
+    } else if InStr(subgroupKey, "consume_") == 1 {
+        parentCore := "Consumables"
+    } else if InStr(subgroupKey, "tool_") == 1 {
+        parentCore := "Tools"
+    } else if InStr(subgroupKey, "quest_") == 1 {
+        parentCore := "Quest Items"
+    } else if InStr(subgroupKey, "currency_") == 1 {
+        parentCore := "Currency"
+    } else if InStr(subgroupKey, "clue_") == 1 {
+        parentCore := "Clue Scrolls"
+    } else if InStr(subgroupKey, "pvp_") == 1 {
+        parentCore := "PvP Items"
+    } else if InStr(subgroupKey, "minigame_") == 1 {
+        parentCore := "Minigame Items"
+    } else if InStr(subgroupKey, "cosmetic_") == 1 {
+        parentCore := "Cosmetics"
+    } else if InStr(subgroupKey, "pet_") == 1 {
+        parentCore := "Pets"
+    } else if InStr(subgroupKey, "transport_") == 1 {
+        parentCore := "Transportation"
+    } else {
+        parentCore := "Miscellaneous"
+    }
+
+    lvGroups.Add("", "  → " . subgroupName, "Subgroup", "")
+
+    groupRows[rowNum] := Map(
+        "name", subgroupName,
+        "key", subgroupKey,
+        "type", "SUBGROUP",
+        "parentCore", parentCore
+    )
+
+    ; Add to parent's children list
+    if coreGroupChildren.Has(parentCore) {
+        coreGroupChildren[parentCore].Push(rowNum)
     }
 }
 
-; === Current Tab Items ===
-CreateCard(670, currentY, 300, 420, "Current Tab Items")
+; Auto-size columns
+lvGroups.ModifyCol(1, 300)
+lvGroups.ModifyCol(2, 100)
+lvGroups.ModifyCol(3, 150)
+
+; === Current Tab Assignment ===
+CreateCard(670, currentY, 300, 480, "Current Tab Assignment")
 cardY := currentY + 50
 
 MyGui.SetFont("s13 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
-txtSelectedTabInfo := MyGui.Add("Text", "x690 y" . cardY " w260 Center", "Tab 1: 0 items")
+txtSelectedTabInfoExclusive := MyGui.Add("Text", "x690 y" . cardY " w260 Center", "Tab 1: 0 groups")
 cardY += 35
 
 MyGui.SetFont("s10 c0x" . ColorSystem["PrimaryText"], "Segoe UI")
-lbxCurrentTabItems := MyGui.Add("ListBox", "x690 y" . cardY " w260 h340 Background" . ColorSystem["SecondaryBg"])
-lbxCurrentTabItems.OnEvent("DoubleClick", RemoveItemFromTab)
+lbxCurrentTabGroups := MyGui.Add("ListBox", "x690 y" . cardY " w260 h390 Background" . ColorSystem["SecondaryBg"])
+lbxCurrentTabGroups.OnEvent("DoubleClick", RemoveGroupFromTab)
 
 MyGui.SetFont("s9 c0x" . ColorSystem["TertiaryText"], "Segoe UI")
-MyGui.Add("Text", "x690 y" . (cardY + 345) " w260 Center", "Double-click to remove")
+MyGui.Add("Text", "x690 y" . (cardY + 395) " w260 Center", "Double-click to remove")
 
 ; === Action Buttons ===
-currentY += 440
+currentY += 500
 MyGui.SetFont("s12 w600 c0x" . ColorSystem["PrimaryAccent"], "Segoe UI")
 
 btnSaveBank := MyGui.Add("Button", "x30 y" . currentY " w200 h40", "Save Bank Config")
-btnSaveBank.OnEvent("Click", SaveAllSettings)
+btnSaveBank.OnEvent("Click", SaveAllSettingsExclusive)
 
 btnClearTab := MyGui.Add("Button", "x240 y" . currentY " w150 h40", "Clear This Tab")
-btnClearTab.OnEvent("Click", (*) => ClearCurrentBankTab())
+btnClearTab.OnEvent("Click", (*) => ClearCurrentBankTabExclusive())
 
 btnResetAll := MyGui.Add("Button", "x400 y" . currentY " w150 h40", "Reset All Tabs")
-btnResetAll.OnEvent("Click", (*) => ResetToDefaults())
+btnResetAll.OnEvent("Click", (*) => ResetToDefaultsExclusive())
 
 MainTabs.UseTab()  ; End tab definition
 
@@ -539,7 +579,7 @@ MainTabs.UseTab()  ; End tab definition
 MyGui.Show("w1000 h800")
 
 ; Initialize
-SelectBankTab(1)
+SelectBankTabExclusive(1)
 
 ; ==========================================
 ; HELPER FUNCTIONS
@@ -560,14 +600,14 @@ CreateCard(x, y, width, height, title) {
 }
 
 ; ==========================================
-; EVENT HANDLERS
+; EXCLUSIVE ASSIGNMENT EVENT HANDLERS
 ; ==========================================
 
-SelectBankTab(tabNum) {
-    global selectedBankTab, bankTabButtons, tabConfigs, txtSelectedTabInfo, lbxCurrentTabItems, tvCategories, tvNodes, ColorSystem
+SelectBankTabExclusive(tabNum) {
+    global selectedBankTab, bankTabButtons, ColorSystem, txtSelectedTabInfoExclusive
+    global lbxCurrentTabGroups, groupToTab, lvGroupsCtrl
 
     selectedBankTab := tabNum
-    tabKey := "tab_" (tabNum - 1)
 
     ; Update button visual states
     Loop 8 {
@@ -582,121 +622,272 @@ SelectBankTab(tabNum) {
         }
     }
 
-    ; Update info text
-    itemCount := tabConfigs[tabKey].Length
-    txtSelectedTabInfo.Value := "Tab " . tabNum . ": " . itemCount . " items"
+    ; Update current tab's group list
+    UpdateCurrentTabDisplay()
 
-    ; Update current items listbox
-    lbxCurrentTabItems.Delete()
-    for item in tabConfigs[tabKey] {
-        lbxCurrentTabItems.Add([item])
+    ; Update ListView to show which groups are available/assigned
+    UpdateListViewAvailability()
+}
+
+UpdateCurrentTabDisplay() {
+    global selectedBankTab, groupToTab, lbxCurrentTabGroups, txtSelectedTabInfoExclusive, groupRows
+
+    ; Clear listbox
+    lbxCurrentTabGroups.Delete()
+
+    ; Count and display groups assigned to this tab
+    groupCount := 0
+    for groupName, assignedTab in groupToTab {
+        if assignedTab == selectedBankTab {
+            groupCount++
+            lbxCurrentTabGroups.Add([groupName])
+        }
     }
 
-    ; Update TreeView checkboxes
-    for categoryName, categoryData in tvNodes {
-        for item, nodeID in categoryData["children"] {
-            isChecked := false
-            for tabItem in tabConfigs[tabKey] {
-                if (tabItem == item) {
-                    isChecked := true
-                    break
-                }
+    txtSelectedTabInfoExclusive.Value := "Tab " . selectedBankTab . ": " . groupCount . " groups"
+}
+
+UpdateListViewAvailability() {
+    global selectedBankTab, groupToTab, lvGroupsCtrl, groupRows, coreGroupChildren
+
+    ; Update each row's checkbox state and "Assigned To" column
+    Loop lvGroupsCtrl.GetCount() {
+        rowNum := A_Index
+        rowInfo := groupRows[rowNum]
+        groupName := rowInfo["name"]
+
+        ; Check if this group is assigned to any tab
+        if groupToTab.Has(groupName) {
+            assignedTab := groupToTab[groupName]
+
+            ; Update "Assigned To" column
+            lvGroupsCtrl.Modify(rowNum, , , , "Tab " . assignedTab)
+
+            ; Check/uncheck based on current tab
+            if assignedTab == selectedBankTab {
+                lvGroupsCtrl.Modify(rowNum, "Check")
+            } else {
+                lvGroupsCtrl.Modify(rowNum, "-Check")
+                ; Grey out row (disable it visually)
+                ; Note: ListView doesn't have direct "disabled" state, but we handle it in click event
             }
-            tvCategories.Modify(nodeID, isChecked ? "Check" : "-Check")
+        } else {
+            ; Not assigned to any tab
+            lvGroupsCtrl.Modify(rowNum, , , , "")
+            lvGroupsCtrl.Modify(rowNum, "-Check")
         }
     }
 }
 
-UpdateBankTabFromTree(*) {
-    global selectedBankTab, tabConfigs, tvCategories, tvNodes, lbxCurrentTabItems, txtSelectedTabInfo
+OnGroupCheckChanged(GuiCtrlObj, Item, IsChecked) {
+    global selectedBankTab, groupRows, groupToTab, coreGroupChildren, lvGroupsCtrl
 
-    tabKey := "tab_" (selectedBankTab - 1)
-    tabConfigs[tabKey] := []
+    rowInfo := groupRows[Item]
+    groupName := rowInfo["name"]
+    groupType := rowInfo["type"]
 
-    ; Collect all checked items from TreeView
-    for categoryName, categoryData in tvNodes {
-        for item, nodeID in categoryData["children"] {
-            if (tvCategories.GetNext(nodeID, "Checked") == nodeID || tvCategories.GetNext(0, "Checked " nodeID)) {
-                ; Check if this node is checked
-                itemText := tvCategories.GetText(nodeID)
+    ; Check if group is already assigned to a different tab
+    if groupToTab.Has(groupName) && groupToTab[groupName] != selectedBankTab {
+        ; Prevent checking - already assigned to another tab
+        lvGroupsCtrl.Modify(Item, "-Check")
+        MsgBox(groupName . " is already assigned to Tab " . groupToTab[groupName] . "!`n`nRemove it from that tab first.", "Already Assigned", "Icon!")
+        return
+    }
 
-                ; Verify it's actually checked
-                currentItem := tvCategories.GetNext(0, "Checked")
-                loop {
-                    if (!currentItem)
-                        break
-                    if (currentItem == nodeID) {
-                        tabConfigs[tabKey].Push(item)
-                        break
+    if IsChecked {
+        ; Assign to current tab
+        groupToTab[groupName] := selectedBankTab
+
+        ; If this is a CORE group, automatically check all its subgroups
+        if groupType == "CORE" && coreGroupChildren.Has(groupName) {
+            for subgroupRow in coreGroupChildren[groupName] {
+                subgroupInfo := groupRows[subgroupRow]
+                subgroupName := subgroupInfo["name"]
+
+                ; Assign subgroup to same tab
+                groupToTab[subgroupName] := selectedBankTab
+                lvGroupsCtrl.Modify(subgroupRow, "Check")
+                lvGroupsCtrl.Modify(subgroupRow, , , , "Tab " . selectedBankTab)
+            }
+        }
+
+        ; Update display
+        lvGroupsCtrl.Modify(Item, , , , "Tab " . selectedBankTab)
+    } else {
+        ; Unassign from current tab
+        if groupToTab.Has(groupName) {
+            groupToTab.Delete(groupName)
+        }
+
+        ; If this is a CORE group, automatically uncheck all its subgroups
+        if groupType == "CORE" && coreGroupChildren.Has(groupName) {
+            for subgroupRow in coreGroupChildren[groupName] {
+                subgroupInfo := groupRows[subgroupRow]
+                subgroupName := subgroupInfo["name"]
+
+                ; Unassign subgroup
+                if groupToTab.Has(subgroupName) {
+                    groupToTab.Delete(subgroupName)
+                }
+                lvGroupsCtrl.Modify(subgroupRow, "-Check")
+                lvGroupsCtrl.Modify(subgroupRow, , , , "")
+            }
+        }
+
+        ; Update display
+        lvGroupsCtrl.Modify(Item, , , , "")
+    }
+
+    ; Update current tab display
+    UpdateCurrentTabDisplay()
+}
+
+OnGroupClick(GuiCtrlObj, Item) {
+    ; Handle click on row - prevent interaction if assigned to different tab
+    global selectedBankTab, groupRows, groupToTab
+
+    if Item > 0 {
+        rowInfo := groupRows[Item]
+        groupName := rowInfo["name"]
+
+        if groupToTab.Has(groupName) && groupToTab[groupName] != selectedBankTab {
+            MsgBox(groupName . " is assigned to Tab " . groupToTab[groupName] . ".`n`nSwitch to that tab or remove it to reassign.", "Info", "Iconi")
+        }
+    }
+}
+
+RemoveGroupFromTab(GuiCtrlObj, Item) {
+    global selectedBankTab, groupToTab, lbxCurrentTabGroups, lvGroupsCtrl, groupRows, coreGroupChildren
+
+    selectedIndex := lbxCurrentTabGroups.Value
+    if selectedIndex == 0 {
+        return
+    }
+
+    groupToRemove := lbxCurrentTabGroups.GetText(selectedIndex)
+    if groupToRemove == "" {
+        return
+    }
+
+    ; Remove from assignment
+    if groupToTab.Has(groupToRemove) {
+        groupToTab.Delete(groupToRemove)
+    }
+
+    ; Find and update the ListView row
+    Loop lvGroupsCtrl.GetCount() {
+        rowInfo := groupRows[A_Index]
+        if rowInfo["name"] == groupToRemove {
+            lvGroupsCtrl.Modify(A_Index, "-Check")
+            lvGroupsCtrl.Modify(A_Index, , , , "")
+
+            ; If CORE group, also remove all subgroups
+            if rowInfo["type"] == "CORE" && coreGroupChildren.Has(groupToRemove) {
+                for subgroupRow in coreGroupChildren[groupToRemove] {
+                    subgroupInfo := groupRows[subgroupRow]
+                    subgroupName := subgroupInfo["name"]
+
+                    if groupToTab.Has(subgroupName) {
+                        groupToTab.Delete(subgroupName)
                     }
-                    currentItem := tvCategories.GetNext(currentItem, "Checked")
+                    lvGroupsCtrl.Modify(subgroupRow, "-Check")
+                    lvGroupsCtrl.Modify(subgroupRow, , , , "")
                 }
             }
-        }
-    }
-
-    ; Update display
-    lbxCurrentTabItems.Delete()
-    for item in tabConfigs[tabKey] {
-        lbxCurrentTabItems.Add([item])
-    }
-
-    txtSelectedTabInfo.Value := "Tab " . selectedBankTab . ": " . tabConfigs[tabKey].Length . " items"
-}
-
-RemoveItemFromTab(*) {
-    global selectedBankTab, tabConfigs, lbxCurrentTabItems, txtSelectedTabInfo, tvCategories, tvNodes
-
-    selectedIndex := lbxCurrentTabItems.Value
-    if (selectedIndex == 0)
-        return
-
-    itemToRemove := lbxCurrentTabItems.GetText(selectedIndex)
-    if (itemToRemove == "")
-        return
-
-    tabKey := "tab_" (selectedBankTab - 1)
-
-    ; Remove from config
-    Loop (tabConfigs[tabKey].Length) {
-        if (tabConfigs[tabKey][A_Index] == itemToRemove) {
-            tabConfigs[tabKey].RemoveAt(A_Index)
-            break
-        }
-    }
-
-    ; Uncheck in TreeView
-    for categoryName, categoryData in tvNodes {
-        if (categoryData["children"].Has(itemToRemove)) {
-            nodeID := categoryData["children"][itemToRemove]
-            tvCategories.Modify(nodeID, "-Check")
             break
         }
     }
 
     ; Update display
-    lbxCurrentTabItems.Delete(selectedIndex)
-    txtSelectedTabInfo.Value := "Tab " . selectedBankTab . ": " . tabConfigs[tabKey].Length . " items"
+    UpdateCurrentTabDisplay()
 }
 
-ClearCurrentBankTab() {
-    global selectedBankTab, tabConfigs, tvCategories, tvNodes
+ClearCurrentBankTabExclusive() {
+    global selectedBankTab, groupToTab, lvGroupsCtrl, groupRows
 
-    result := MsgBox("Clear all items from Tab " . selectedBankTab . "?", "Confirm Clear", "YN Icon?")
-    if (result != "Yes")
+    result := MsgBox("Clear all groups from Tab " . selectedBankTab . "?", "Confirm Clear", "YN Icon?")
+    if result != "Yes" {
         return
+    }
 
-    tabKey := "tab_" (selectedBankTab - 1)
-    tabConfigs[tabKey] := []
-
-    ; Uncheck all items in TreeView
-    for categoryName, categoryData in tvNodes {
-        for item, nodeID in categoryData["children"] {
-            tvCategories.Modify(nodeID, "-Check")
+    ; Remove all assignments for this tab
+    groupsToRemove := []
+    for groupName, assignedTab in groupToTab {
+        if assignedTab == selectedBankTab {
+            groupsToRemove.Push(groupName)
         }
     }
 
-    SelectBankTab(selectedBankTab)
+    for groupName in groupsToRemove {
+        groupToTab.Delete(groupName)
+    }
+
+    ; Update ListView
+    UpdateListViewAvailability()
+    UpdateCurrentTabDisplay()
+}
+
+ResetToDefaultsExclusive() {
+    global groupToTab
+
+    result := MsgBox("Reset all tab assignments to defaults?", "Confirm Reset", "YN Icon!")
+    if result != "Yes" {
+        return
+    }
+
+    ; Clear all assignments
+    groupToTab := Map()
+
+    ; Update display
+    UpdateListViewAvailability()
+    UpdateCurrentTabDisplay()
+
+    MsgBox("All tab assignments cleared!", "Success", "Iconi")
+}
+
+SaveAllSettingsExclusive(*) {
+    global userCfg, cfgFile, groupToTab, groupRows
+
+    ; Convert groupToTab to tabConfigs format
+    ; tabConfigs should be Map("tab_0" -> [groups], "tab_1" -> [groups], ...)
+    newTabConfigs := Map()
+
+    ; Initialize all tabs with empty arrays
+    Loop 8 {
+        newTabConfigs["tab_" . (A_Index - 1)] := []
+    }
+
+    ; Populate tabs with assigned groups
+    for groupName, tabNum in groupToTab {
+        tabKey := "tab_" . (tabNum - 1)
+        newTabConfigs[tabKey].Push(groupName)
+    }
+
+    ; Update global tabConfigs
+    tabConfigs := newTabConfigs
+
+    ; Save config
+    SaveConfig()
+    userCfg["BankCategories"] := tabConfigs
+
+    try {
+        ; Save configuration file
+        if FileExist(cfgFile) {
+            FileDelete(cfgFile)
+        }
+        FileAppend(JSON.Stringify(userCfg), cfgFile)
+
+        ; Automatically generate main.ahk with new settings
+        success := GenerateMainScript()
+
+        if success {
+            MsgBox("Settings saved successfully!`n`nmain.ahk has been updated with your exclusive group assignments.", "Success", "Iconi")
+        } else {
+            MsgBox("Settings saved, but main.ahk generation failed.`n`nCheck error log for details.", "Warning", "Icon!")
+        }
+    } catch as err {
+        MsgBox("Error saving settings: " . err.Message, "Error", "Icon!")
+    }
 }
 
 ResetToDefaults() {
@@ -720,7 +911,7 @@ ResetToDefaults() {
     chkStealthMode.Value := defaultCfg["StealthMode"]
 
     UpdateSliderDisplay()
-    SelectBankTab(selectedBankTab)
+    SelectBankTabExclusive(selectedBankTab)
 
     MsgBox("Settings reset to defaults!", "Success", "Iconi")
 }
