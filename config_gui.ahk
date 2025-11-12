@@ -749,10 +749,19 @@ SaveAllSettings(*) {
     userCfg["BankCategories"] := tabConfigs
 
     try {
+        ; Save configuration file
         if FileExist(cfgFile)
             FileDelete(cfgFile)
         FileAppend(JSON.Stringify(userCfg), cfgFile)
-        MsgBox("Settings saved successfully!", "Success", "Iconi")
+
+        ; Automatically generate main.ahk with new settings
+        success := GenerateMainScript()
+
+        if success {
+            MsgBox("Settings saved successfully!`n`nmain.ahk has been updated with your configuration.", "Success", "Iconi")
+        } else {
+            MsgBox("Settings saved, but main.ahk generation failed.`n`nCheck error log for details.", "Warning", "Icon!")
+        }
     } catch as err {
         MsgBox("Error saving settings: " . err.Message, "Error", "Icon!")
     }
@@ -766,15 +775,77 @@ GenerateBot(*) {
         return
 
     SaveAllSettings()
+}
 
-    if FileExist(A_ScriptDir "\generate_main.ahk") {
-        try {
-            Run('"' A_AhkPath '" "' A_ScriptDir '\generate_main.ahk"')
-            MsgBox("Bot generation started!`n`nCheck console for progress.", "Generating", "Iconi")
-        } catch as err {
-            MsgBox("Error: " . err.Message, "Error", "Icon!")
+GenerateMainScript() {
+    global userCfg, tabConfigs
+
+    try {
+        ; Read the template
+        templateFile := A_ScriptDir "\main_template_v2.ahk"
+        if !FileExist(templateFile) {
+            MsgBox("Template file not found: " . templateFile . "`n`nUsing fallback template.", "Warning", "Icon!")
+            templateFile := A_ScriptDir "\main_template.ahk"
+            if !FileExist(templateFile) {
+                return false
+            }
         }
-    } else {
-        MsgBox("Missing file: generate_main.ahk`n`nPlease ensure all files are present.", "Error", "Icon!")
+
+        content := FileRead(templateFile)
+
+        ; Generate bank categories as AHK code
+        bankCategoriesCode := GenerateBankCategoriesCode(tabConfigs)
+
+        ; Replace template variables
+        content := StrReplace(content, "{{BANK_CATEGORIES_JSON}}", bankCategoriesCode)
+        content := StrReplace(content, "{{ANTIBAN}}", userCfg["AntiBan"])
+        content := StrReplace(content, "{{VOICE}}", userCfg["VoiceAlerts"] ? "true" : "false")
+        content := StrReplace(content, "{{WORLDHOP}}", userCfg["WorldHop"] ? "true" : "false")
+        content := StrReplace(content, "{{MAXSESSION}}", userCfg["MaxSession"])
+        content := StrReplace(content, "{{USEOCR}}", userCfg["UseOCR"] ? "true" : "false")
+        content := StrReplace(content, "{{STEALTH}}", userCfg["StealthMode"] ? "true" : "false")
+
+        ; Write to main.ahk
+        outputFile := A_ScriptDir "\main.ahk"
+        if FileExist(outputFile) {
+            FileDelete(outputFile)
+        }
+        FileAppend(content, outputFile)
+
+        return true
+    } catch as err {
+        MsgBox("Error generating main script: " . err.Message, "Error", "Icon!")
+        return false
     }
+}
+
+GenerateBankCategoriesCode(tabConfigs) {
+    ; Generate AutoHotkey code for bank categories Map
+    code := "; Bank tab configuration (generated from GUI)`n"
+    code .= "bankCategories := Map(`n"
+
+    first := true
+    for tabKey, categories in tabConfigs {
+        if !first {
+            code .= ",`n"
+        }
+        first := false
+
+        ; Build array of categories
+        code .= '    "' . tabKey . '", ['
+
+        catFirst := true
+        for category in categories {
+            if !catFirst {
+                code .= ", "
+            }
+            catFirst := false
+            code .= '"' . category . '"'
+        }
+
+        code .= "]"
+    }
+
+    code .= "`n)`n"
+    return code
 }
