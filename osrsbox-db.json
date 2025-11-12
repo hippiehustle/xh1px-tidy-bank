@@ -1,0 +1,13 @@
+{
+  "995": {"id": 995, "name": "Coins", "current": {"price": 1}},
+  "1042": {"id": 1042, "name": "Pot", "current": {"price": 15}},
+  "1511": {"id": 1511, "name": "Logs", "current": {"price": 89}},
+  "1513": {"id": 1513, "name": "Magic logs", "current": {"price": 987}},
+  "2": {"id": 2, "name": "Cannonball", "current": {"price": 215}},
+  "554": {"id": 554, "name": "Fire rune", "current": {"price": 5}},
+  "555": {"id": 555, "name": "Water rune", "current": {"price": 4}},
+  "556": {"id": 556, "name": "Air rune", "current": {"price": 4}},
+  "557": {"id": 557, "name": "Earth rune", "current": {"price": 4}},
+  "561": {"id": 561, "name": "Nature rune", "current": {"price": 178}},
+  "21880": {"id": 21880, "name": "Dragon claws", "current": {"price": 43500000}}
+}
