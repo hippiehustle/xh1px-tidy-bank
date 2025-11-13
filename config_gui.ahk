@@ -903,7 +903,7 @@ ResetToDefaultsExclusive() {
 }
 
 SaveAllSettingsExclusive(*) {
-    global userCfg, cfgFile, groupToTab, groupRows
+    global userCfg, cfgFile, groupToTab, groupRows, tabConfigs
 
     ; Convert groupToTab to tabConfigs format
     ; tabConfigs should be Map("tab_0" -> [groups], "tab_1" -> [groups], ...)
