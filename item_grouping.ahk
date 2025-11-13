@@ -187,7 +187,7 @@ class ItemGroupingSystem {
     }
 
     ; Get all items in a core group
-    static GetItemsByCore Group(coreGroup) {
+    static GetItemsByCoreGroup(coreGroup) {
         if !this.dbLoaded
             this.LoadDatabase()
 
