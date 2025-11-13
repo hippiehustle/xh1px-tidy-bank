@@ -691,8 +691,8 @@ UpdateListViewAvailability() {
         if groupToTab.Has(groupName) {
             assignedTab := groupToTab[groupName]
 
-            ; Update "Assigned To" column
-            lvGroupsCtrl.Modify(rowNum, , , , "Tab " . assignedTab)
+            ; Update "Assigned To" column (Column 3)
+            lvGroupsCtrl.Modify(rowNum, "", "", "", "Tab " . assignedTab)
 
             ; Check/uncheck based on current tab
             if assignedTab == selectedBankTab {
@@ -704,7 +704,7 @@ UpdateListViewAvailability() {
             }
         } else {
             ; Not assigned to any tab
-            lvGroupsCtrl.Modify(rowNum, , , , "")
+            lvGroupsCtrl.Modify(rowNum, "", "", "", "")
             lvGroupsCtrl.Modify(rowNum, "-Check")
         }
     }
@@ -763,12 +763,12 @@ OnGroupCheckChanged(GuiCtrlObj, Item, IsChecked) {
                 ; Assign subgroup to same tab
                 groupToTab[subgroupName] := selectedBankTab
                 lvGroupsCtrl.Modify(subgroupRow, "Check")
-                lvGroupsCtrl.Modify(subgroupRow, , , , "Tab " . selectedBankTab)
+                lvGroupsCtrl.Modify(subgroupRow, "", "", "", "Tab " . selectedBankTab)
             }
         }
 
         ; Update display
-        lvGroupsCtrl.Modify(Item, , , , "Tab " . selectedBankTab)
+        lvGroupsCtrl.Modify(Item, "", "", "", "Tab " . selectedBankTab)
     } else {
         ; Unassign from current tab
         if groupToTab.Has(groupName) {
@@ -786,12 +786,12 @@ OnGroupCheckChanged(GuiCtrlObj, Item, IsChecked) {
                     groupToTab.Delete(subgroupName)
                 }
                 lvGroupsCtrl.Modify(subgroupRow, "-Check")
-                lvGroupsCtrl.Modify(subgroupRow, , , , "")
+                lvGroupsCtrl.Modify(subgroupRow, "", "", "", "")
             }
         }
 
         ; Update display
-        lvGroupsCtrl.Modify(Item, , , , "")
+        lvGroupsCtrl.Modify(Item, "", "", "", "")
     }
 
     ; Update current tab display
@@ -835,7 +835,7 @@ RemoveGroupFromTab(GuiCtrlObj, Item) {
         rowInfo := groupRows[A_Index]
         if rowInfo["name"] == groupToRemove {
             lvGroupsCtrl.Modify(A_Index, "-Check")
-            lvGroupsCtrl.Modify(A_Index, , , , "")
+            lvGroupsCtrl.Modify(A_Index, "", "", "", "")
 
             ; If CORE group, also remove all subgroups
             if rowInfo["type"] == "CORE" && coreGroupChildren.Has(groupToRemove) {
@@ -847,7 +847,7 @@ RemoveGroupFromTab(GuiCtrlObj, Item) {
                         groupToTab.Delete(subgroupName)
                     }
                     lvGroupsCtrl.Modify(subgroupRow, "-Check")
-                    lvGroupsCtrl.Modify(subgroupRow, , , , "")
+                    lvGroupsCtrl.Modify(subgroupRow, "", "", "", "")
                 }
             }
             break
