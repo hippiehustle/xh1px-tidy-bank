@@ -444,7 +444,8 @@ Loop 8 {
 
     MyGui.SetFont("s11 w600", "Segoe UI")
     btn := MyGui.Add("Button", "x" . btnX " y" . buttonStartY " w" . buttonWidth " h" . buttonHeight, "Tab " . tabNum)
-    btn.OnEvent("Click", (*) => SelectBankTabExclusive(tabNum))
+    ; Use IIFE to properly capture tabNum value for each button
+    btn.OnEvent("Click", ((num) => ((*) => SelectBankTabExclusive(num)))(tabNum))
     bankTabButtons.Push(btn)
 }
 
