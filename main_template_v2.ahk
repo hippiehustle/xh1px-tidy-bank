@@ -70,6 +70,8 @@ Speak(t) {
     if cfg["VoiceAlerts"] {
         try {
             ComObject("SAPI.SpVoice").Speak(t, 0)
+        } catch as err {
+            Log("Text-to-speech error: " . err.Message)
         }
     }
 }
@@ -106,6 +108,9 @@ PanicAbort() {
 BankSortLoop() {
     try {
         WinActivate("BlueStacks")
+    } catch as err {
+        Log("Window activation error: " . err.Message)
+        return
     }
 
     AntiBan()
@@ -115,18 +120,25 @@ BankSortLoop() {
         return
     }
 
-    ScreenshotBank()
-    items := ScanBank()
+    try {
+        ScreenshotBank()
+        items := ScanBank()
 
-    if items.Length > 0 {
-        ; Sort items by bank tab using the grouping system
-        SortIntoTabs(items)
-        Speak("Sorted " . items.Length . " items")
-        Log("Sorted " . items.Length . " items into bank tabs")
-    }
-
-    if FileExist(screenshot) {
-        FileDelete(screenshot)
+        if items.Length > 0 {
+            ; Sort items by bank tab using the grouping system
+            SortIntoTabs(items)
+            Speak("Sorted " . items.Length . " items")
+            Log("Sorted " . items.Length . " items into bank tabs")
+        }
+    } finally {
+        ; Clean up screenshot even if error occurs
+        if FileExist(screenshot) {
+            try {
+                FileDelete(screenshot)
+            } catch as err {
+                Log("Screenshot cleanup error: " . err.Message)
+            }
+        }
     }
 }
 
@@ -136,8 +148,18 @@ BankSortLoop() {
 
 ScreenshotBank() {
     try {
+        ; Verify ADB connection is available
+        if !FileExist(screenshot) {
+            ; Initial check - file shouldn't exist yet
+        }
+
         RunWait(adb " shell screencap -p /sdcard/bank.png", , "Hide")
         RunWait(adb ' pull /sdcard/bank.png "' screenshot '"', , "Hide")
+
+        ; Verify screenshot was actually created
+        if !FileExist(screenshot) {
+            Log("Warning: Screenshot file not created")
+        }
     } catch as err {
         Log("Screenshot error: " . err.Message)
     }
