@@ -8,6 +8,7 @@
 
 ; Include modules
 #Include constants.ahk
+#Include performance.ahk
 #Include item_grouping.ahk
 #Include bank_tab_resolver.ahk
 
@@ -49,26 +50,39 @@ sessionStart := A_TickCount
 InitializeBot() {
     global bankCategories, cfg
 
-    ; Validate configuration
-    if !ValidateConfiguration() {
-        Log("Critical: Configuration validation failed", LogLevelConstants.ERROR)
-        MsgBox("Configuration validation failed! Check logs for details.", "xh1px's Tidy Bank - Error", 16)
-        ExitApp()
+    ; Initialize performance monitoring
+    PerformanceMonitor.Initialize()
+    initTracker := CreateTrackedOperation("bot_initialization")
+
+    try {
+        ; Validate configuration
+        if !ValidateConfiguration() {
+            Log("Critical: Configuration validation failed", LogLevelConstants.ERROR)
+            MsgBox("Configuration validation failed! Check logs for details.", "xh1px's Tidy Bank - Error", 16)
+            ExitApp()
+        }
+
+        ; Load item grouping database
+        if !ItemGroupingSystem.LoadDatabase() {
+            Log("Critical: Failed to load item database", LogLevelConstants.ERROR)
+            MsgBox("Failed to load item database!`n`nPlease ensure osrs-items-condensed.json is present.", "xh1px's Tidy Bank - Error", 16)
+            ExitApp()
+        }
+
+        ; Initialize conflict resolver with user's bank tab configuration
+        BankTabResolver.Initialize(bankCategories)
+
+        ; Record initialization metrics
+        initDuration := initTracker.Complete(true)
+
+        Log("xh1px's Tidy Bank v2.0 initialized successfully (took " . initDuration . "ms)", LogLevelConstants.INFO)
+        Log("Item database loaded: " . ItemGroupingSystem.GetDatabaseStats()["totalItems"] . " items", LogLevelConstants.INFO)
+        Log("Bank tab resolver initialized with " . bankCategories.Count . " configured tabs", LogLevelConstants.INFO)
+    } catch as err {
+        initTracker.Complete(false)
+        Log("Initialization error: " . err.Message, LogLevelConstants.ERROR)
+        throw err
     }
-
-    ; Load item grouping database
-    if !ItemGroupingSystem.LoadDatabase() {
-        Log("Critical: Failed to load item database", LogLevelConstants.ERROR)
-        MsgBox("Failed to load item database!`n`nPlease ensure osrs-items-condensed.json is present.", "xh1px's Tidy Bank - Error", 16)
-        ExitApp()
-    }
-
-    ; Initialize conflict resolver with user's bank tab configuration
-    BankTabResolver.Initialize(bankCategories)
-
-    Log("xh1px's Tidy Bank v2.0 initialized successfully", LogLevelConstants.INFO)
-    Log("Item database loaded: " . ItemGroupingSystem.GetDatabaseStats()["totalItems"] . " items", LogLevelConstants.INFO)
-    Log("Bank tab resolver initialized with " . bankCategories.Count . " configured tabs", LogLevelConstants.INFO)
 }
 
 ; Validate bot configuration
@@ -148,10 +162,13 @@ PanicAbort() {
 }
 
 BankSortLoop() {
+    loopTracker := CreateTrackedOperation("bank_sort_loop")
+
     try {
         WinActivate("BlueStacks")
     } catch as err {
-        Log("Window activation error: " . err.Message)
+        Log("Window activation error: " . err.Message, LogLevelConstants.WARNING)
+        PerformanceMonitor.RecordMetric("errors_encountered")
         return
     }
 
@@ -163,22 +180,36 @@ BankSortLoop() {
     }
 
     try {
+        screenshotTracker := CreateTrackedOperation("screenshot_capture")
         ScreenshotBank()
+        screenshotTracker.Complete()
+        PerformanceMonitor.RecordMetric("screenshots_taken")
+
         items := ScanBank()
 
         if items.Length > 0 {
             ; Sort items by bank tab using the grouping system
+            sortTracker := CreateTrackedOperation("items_sorting")
             SortIntoTabs(items)
+            sortTracker.Complete()
+
+            PerformanceMonitor.RecordMetric("items_sorted", items.Length)
             Speak("Sorted " . items.Length . " items")
-            Log("Sorted " . items.Length . " items into bank tabs")
+            Log("Sorted " . items.Length . " items into bank tabs", LogLevelConstants.INFO)
         }
+
+        loopTracker.Complete(true)
+    } catch as err {
+        Log("Error in BankSortLoop: " . err.Message, LogLevelConstants.ERROR)
+        PerformanceMonitor.RecordMetric("errors_encountered")
+        loopTracker.Complete(false)
     } finally {
         ; Clean up screenshot even if error occurs
         if FileExist(screenshot) {
             try {
                 FileDelete(screenshot)
             } catch as err {
-                Log("Screenshot cleanup error: " . err.Message)
+                Log("Screenshot cleanup error: " . err.Message, LogLevelConstants.WARNING)
             }
         }
     }
@@ -350,11 +381,17 @@ SwitchBankTab(tabNum) {
 }
 
 UI_Drag(sx, sy, ex, ey) {
+    dragTracker := CreateTrackedOperation("ui_drag")
+
     if cfg["StealthMode"] {
         try {
             Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " 150", , "Hide")
+            PerformanceMonitor.RecordMetric("drags_performed")
+            dragTracker.Complete(true)
         } catch as err {
-            Log("Stealth drag error: " . err.Message)
+            Log("Stealth drag error: " . err.Message, LogLevelConstants.WARNING)
+            PerformanceMonitor.RecordMetric("errors_encountered")
+            dragTracker.Complete(false)
         }
         return
     }
@@ -370,15 +407,19 @@ UI_Drag(sx, sy, ex, ey) {
             try {
                 Run(adb " shell input tap " . x . " " . y, , "Hide")
             } catch as err {
-                Log("Tap error at step " . A_Index . ": " . err.Message)
+                Log("Tap error at step " . A_Index . ": " . err.Message, LogLevelConstants.DEBUG)
             }
             Sleep(10)
         }
 
         ; Final swipe
         Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " 150", , "Hide")
+        PerformanceMonitor.RecordMetric("drags_performed")
+        dragTracker.Complete(true)
     } catch as err {
-        Log("UI_Drag error: " . err.Message)
+        Log("UI_Drag error: " . err.Message, LogLevelConstants.ERROR)
+        PerformanceMonitor.RecordMetric("errors_encountered")
+        dragTracker.Complete(false)
     }
 }
 
