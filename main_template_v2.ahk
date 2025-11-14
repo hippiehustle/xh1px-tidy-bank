@@ -7,6 +7,7 @@
 ; ==========================================
 
 ; Include modules
+#Include constants.ahk
 #Include item_grouping.ahk
 #Include bank_tab_resolver.ahk
 
@@ -46,10 +47,18 @@ sessionStart := A_TickCount
 
 ; Load item database and initialize systems
 InitializeBot() {
-    global bankCategories
+    global bankCategories, cfg
+
+    ; Validate configuration
+    if !ValidateConfiguration() {
+        Log("Critical: Configuration validation failed", LogLevelConstants.ERROR)
+        MsgBox("Configuration validation failed! Check logs for details.", "xh1px's Tidy Bank - Error", 16)
+        ExitApp()
+    }
 
     ; Load item grouping database
     if !ItemGroupingSystem.LoadDatabase() {
+        Log("Critical: Failed to load item database", LogLevelConstants.ERROR)
         MsgBox("Failed to load item database!`n`nPlease ensure osrs-items-condensed.json is present.", "xh1px's Tidy Bank - Error", 16)
         ExitApp()
     }
@@ -57,9 +66,42 @@ InitializeBot() {
     ; Initialize conflict resolver with user's bank tab configuration
     BankTabResolver.Initialize(bankCategories)
 
-    Log("xh1px's Tidy Bank v2.0 initialized successfully")
-    Log("Item database loaded: " . ItemGroupingSystem.GetDatabaseStats()["totalItems"] . " items")
-    Log("Bank tab resolver initialized with " . bankCategories.Count . " configured tabs")
+    Log("xh1px's Tidy Bank v2.0 initialized successfully", LogLevelConstants.INFO)
+    Log("Item database loaded: " . ItemGroupingSystem.GetDatabaseStats()["totalItems"] . " items", LogLevelConstants.INFO)
+    Log("Bank tab resolver initialized with " . bankCategories.Count . " configured tabs", LogLevelConstants.INFO)
+}
+
+; Validate bot configuration
+ValidateConfiguration() {
+    global cfg
+
+    try {
+        ; Check required keys
+        requiredKeys := ["AntiBan", "VoiceAlerts", "MaxSession", "StealthMode"]
+        for key in requiredKeys {
+            if !cfg.Has(key) {
+                Log("Config validation: Missing required key '" . key . "'", LogLevelConstants.WARNING)
+                return false
+            }
+        }
+
+        ; Validate AntiBan mode
+        if !ValidationConstants.IsValidAntiBanMode(cfg["AntiBan"]) {
+            Log("Config validation: Invalid AntiBan mode '" . cfg["AntiBan"] . "'", LogLevelConstants.WARNING)
+            return false
+        }
+
+        ; Validate MaxSession
+        if !ValidationConstants.IsValidMaxSession(cfg["MaxSession"]) {
+            Log("Config validation: MaxSession out of range: " . cfg["MaxSession"], LogLevelConstants.WARNING)
+            cfg["MaxSession"] := ValidationConstants.DEFAULT_MAX_SESSION
+        }
+
+        return true
+    } catch as err {
+        Log("Config validation error: " . err.Message, LogLevelConstants.ERROR)
+        return false
+    }
 }
 
 ; ==========================================
@@ -253,32 +295,34 @@ SortIntoTabs(items) {
 MoveItemsToTab(items, tabNum) {
     ; First, switch to the destination tab
     SwitchBankTab(tabNum)
-    Sleep(300)
+    SafeSleep(TimeConstants.TAB_SWITCH_DELAY)
 
-    ; Calculate starting position for this tab
-    startX := 71
-    startY := 171
-    spacing := 60
+    ; Get grid starting position from constants
+    startX := BankCoordinates.GRID_START_X
+    startY := BankCoordinates.GRID_START_Y
+    spacing := BankCoordinates.GRID_CELL_SPACING
+    maxCols := BankCoordinates.GRID_COLS
+    maxRows := BankCoordinates.GRID_ROWS
 
     ; Move each item to its position in the tab
     col := 0
     row := 0
 
     for item in items {
-        targetX := startX + (col * spacing)
-        targetY := startY + (row * spacing)
+        targetX := startX + (col * spacing) + BankCoordinates.GRID_CELL_CENTER_OFFSET
+        targetY := startY + (row * spacing) + BankCoordinates.GRID_CELL_CENTER_OFFSET
 
         ; Drag item from current position to target position
         UI_Drag(item["x"], item["y"], targetX, targetY)
 
         col++
-        if col >= 8 {
+        if col >= maxCols {
             col := 0
             row++
         }
 
         ; Safety check: don't overfill tab
-        if row >= 8 {
+        if row >= maxRows {
             Log("Warning: Tab " . tabNum . " full, cannot add more items")
             break
         }
@@ -286,18 +330,22 @@ MoveItemsToTab(items, tabNum) {
 }
 
 SwitchBankTab(tabNum) {
-    ; Bank tabs are at the top of the bank interface
-    ; Tab positions (approximate): Tab 1 = 150px, Tab 2 = 210px, etc.
-    tabBaseX := 150
-    tabSpacing := 60
-    tabY := 80
-
-    tabX := tabBaseX + ((tabNum - 1) * tabSpacing)
+    ; Validate tab number
+    if !ValidationConstants.IsValidTabNumber(tabNum) {
+        Log("Error: Invalid tab number " . tabNum . " (valid: 1-8)")
+        return false
+    }
 
     try {
+        tabCoords := BankCoordinates.GetTabCoordinates(tabNum)
+        tabX := tabCoords["x"]
+        tabY := tabCoords["y"]
+
         Run(adb " shell input tap " . tabX . " " . tabY, , "Hide")
+        return true
     } catch as err {
         Log("Error switching to tab " . tabNum . ": " . err.Message)
+        return false
     }
 }
 
@@ -389,17 +437,24 @@ ElapsedHours() {
     return Round((A_TickCount - sessionStart) / 3600000, 1)
 }
 
-Log(message) {
-    logDir := A_ScriptDir "\logs"
-    if !DirExist(logDir) {
-        DirCreate(logDir)
+Log(message, level := LogLevelConstants.INFO) {
+    ; Ensure log directory exists
+    if !SafeDirCreate(FilePathConstants.LOG_DIR) {
+        ; If we can't create the log directory, at least try to output to console
+        OutputDebug(GetTimestamp() . " [" . level . "] " . message)
+        return
     }
 
-    timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
-    logFile := logDir "\tidybank_log.txt"
+    timestamp := GetTimestamp()
+    logFile := FilePathConstants.LOG_FILE
 
     try {
-        FileAppend(timestamp " | " . message . "`n", logFile)
+        ; Format: YYYY-MM-DD HH:MM:SS [LEVEL] Message
+        logEntry := timestamp . " [" . level . "] " . message . "`n"
+        FileAppend(logEntry, logFile)
+    } catch as err {
+        ; Fallback if file append fails
+        OutputDebug(logEntry . " (Error: " . err.Message . ")")
     }
 }
 
