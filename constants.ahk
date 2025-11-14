@@ -61,14 +61,30 @@ class TimeConstants {
     static ADB_TIMEOUT := 5000
     static ITEM_SCAN_DELAY := 100
 
-    ; Anti-ban delays (in milliseconds)
-    static SHORT_PAUSE := Random(100, 500)
-    static MEDIUM_PAUSE := Random(500, 2000)
-    static LONG_PAUSE := Random(5000, 15000)
+    ; Anti-ban delay ranges (in milliseconds)
+    static SHORT_PAUSE_MIN := 100
+    static SHORT_PAUSE_MAX := 500
+    static MEDIUM_PAUSE_MIN := 500
+    static MEDIUM_PAUSE_MAX := 2000
+    static LONG_PAUSE_MIN := 5000
+    static LONG_PAUSE_MAX := 15000
 
     ; Session timing
     static LOOP_INTERVAL := 800
     static SESSION_CHECK_INTERVAL := 60000  ; Check every minute
+
+    ; Generate random pause within range
+    static GetShortPause() {
+        return Random(this.SHORT_PAUSE_MIN, this.SHORT_PAUSE_MAX)
+    }
+
+    static GetMediumPause() {
+        return Random(this.MEDIUM_PAUSE_MIN, this.MEDIUM_PAUSE_MAX)
+    }
+
+    static GetLongPause() {
+        return Random(this.LONG_PAUSE_MIN, this.LONG_PAUSE_MAX)
+    }
 }
 
 class FilePathConstants {
