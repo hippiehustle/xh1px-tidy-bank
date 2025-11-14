@@ -1,0 +1,14 @@
+#!/bin/bash
+# Git Pre-Commit Hook for AutoHotkey Projects
+#
+# Installation:
+#   cp .claude/scripts/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# This hook validates .ahk files before allowing commit
+
+# Run validation script in pre-commit mode
+.claude/scripts/validate_ahk.sh --pre-commit
+
+# Exit with validation result
+exit $?
