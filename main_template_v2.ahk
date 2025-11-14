@@ -283,25 +283,32 @@ UI_Drag(sx, sy, ex, ey) {
     if cfg["StealthMode"] {
         try {
             Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " 150", , "Hide")
+        } catch as err {
+            Log("Stealth drag error: " . err.Message)
         }
         return
     }
 
     ; Human-like movement simulation
     steps := 15
-    Loop steps {
-        progress := A_Index / steps
-        x := Round((1 - progress) * sx + progress * ex + Random(-2, 2))
-        y := Round((1 - progress) * sy + progress * ey + Random(-2, 2))
-
-        try {
-            Run(adb " shell input tap " . x . " " . y, , "Hide")
-        }
-        Sleep(10)
-    }
-
     try {
+        Loop steps {
+            progress := A_Index / steps
+            x := Round((1 - progress) * sx + progress * ex + Random(-2, 2))
+            y := Round((1 - progress) * sy + progress * ey + Random(-2, 2))
+
+            try {
+                Run(adb " shell input tap " . x . " " . y, , "Hide")
+            } catch as err {
+                Log("Tap error at step " . A_Index . ": " . err.Message)
+            }
+            Sleep(10)
+        }
+
+        ; Final swipe
         Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " 150", , "Hide")
+    } catch as err {
+        Log("UI_Drag error: " . err.Message)
     }
 }
 
