@@ -138,25 +138,31 @@ F2::PanicAbort()
 Esc::ExitApp()
 
 ToggleBot() {
-    global running
+    global running, cfg
     running := !running
     if running {
         Speak("xh1px's Tidy Bank activated")
-        SetTimer(BankSortLoop, 800)
+        SetTimer(BankSortLoop, TimeConstants.LOOP_INTERVAL)
+        Log("Bot activated", LogLevelConstants.INFO)
     } else {
         Speak("Bot deactivated")
         SetTimer(BankSortLoop, 0)
+        Log("Bot deactivated", LogLevelConstants.INFO)
     }
 }
 
 PanicAbort() {
+    global adb
     Speak("Emergency shutdown")
+    Log("Emergency abort triggered", LogLevelConstants.WARNING)
     try {
         Run(adb " shell input keyevent 4")
         Sleep(1000)
         Run(adb " shell input keyevent 82")
         Sleep(3000)
         Run("adb reboot", , "Hide")
+    } catch as err {
+        Log("Error during emergency abort: " . err.Message, LogLevelConstants.ERROR)
     }
     ExitApp()
 }
@@ -220,6 +226,8 @@ BankSortLoop() {
 ; ==========================================
 
 ScreenshotBank() {
+    global adb, screenshot
+
     try {
         ; Verify ADB connection is available
         if !FileExist(screenshot) {
@@ -231,14 +239,16 @@ ScreenshotBank() {
 
         ; Verify screenshot was actually created
         if !FileExist(screenshot) {
-            Log("Warning: Screenshot file not created")
+            Log("Warning: Screenshot file not created", LogLevelConstants.WARNING)
         }
     } catch as err {
-        Log("Screenshot error: " . err.Message)
+        Log("Screenshot error: " . err.Message, LogLevelConstants.ERROR)
     }
 }
 
 ScanBank() {
+    global screenshot
+
     items := []
 
     if !FileExist(screenshot) {
@@ -361,9 +371,11 @@ MoveItemsToTab(items, tabNum) {
 }
 
 SwitchBankTab(tabNum) {
+    global adb
+
     ; Validate tab number
     if !ValidationConstants.IsValidTabNumber(tabNum) {
-        Log("Error: Invalid tab number " . tabNum . " (valid: 1-8)")
+        Log("Error: Invalid tab number " . tabNum . " (valid: 1-8)", LogLevelConstants.ERROR)
         return false
     }
 
@@ -373,14 +385,18 @@ SwitchBankTab(tabNum) {
         tabY := tabCoords["y"]
 
         Run(adb " shell input tap " . tabX . " " . tabY, , "Hide")
+        PerformanceMonitor.RecordMetric("tabs_switched")
         return true
     } catch as err {
-        Log("Error switching to tab " . tabNum . ": " . err.Message)
+        Log("Error switching to tab " . tabNum . ": " . err.Message, LogLevelConstants.ERROR)
+        PerformanceMonitor.RecordMetric("errors_encountered")
         return false
     }
 }
 
 UI_Drag(sx, sy, ex, ey) {
+    global adb, cfg
+
     dragTracker := CreateTrackedOperation("ui_drag")
 
     if cfg["StealthMode"] {
@@ -428,6 +444,8 @@ UI_Drag(sx, sy, ex, ey) {
 ; ==========================================
 
 AntiBan() {
+    global cfg, sessionStart
+
     if cfg["StealthMode"] || cfg["AntiBan"] == "Off" {
         return
     }
@@ -452,7 +470,7 @@ AntiBan() {
     ; Check session time limit
     if ElapsedHours() >= cfg["MaxSession"] / 60 {
         Speak("Session time limit reached")
-        Log("Session ended: Time limit reached")
+        Log("Session ended: Time limit reached", LogLevelConstants.WARNING)
         ExitApp()
     }
 }
@@ -467,14 +485,21 @@ IsBankOpen() {
 }
 
 OpenBank() {
+    global adb
+
     Speak("Opening bank")
+    Log("Opening bank...", LogLevelConstants.INFO)
     try {
-        Run(adb " shell input tap 960 540", , "Hide")
+        Run(adb " shell input tap " . BankCoordinates.SCREEN_CENTER_X . " " . BankCoordinates.SCREEN_CENTER_Y, , "Hide")
+    } catch as err {
+        Log("Error opening bank: " . err.Message, LogLevelConstants.ERROR)
     }
     Sleep(2000)
 }
 
 ElapsedHours() {
+    global sessionStart
+
     return Round((A_TickCount - sessionStart) / 3600000, 1)
 }
 
