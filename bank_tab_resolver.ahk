@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Include item_grouping.ahk
 
 ; ==========================================
 ; Bank Tab Conflict Resolution System
@@ -245,12 +246,9 @@ SortArray(&arr) {
         }
     }
 }
-
 ; Example usage and testing
 TestConflictResolution() {
     ; Load item grouping system
-    #Include item_grouping.ahk
-
     if !ItemGroupingSystem.LoadDatabase() {
         MsgBox("Failed to load item database!", "Error", "Icon!")
         return

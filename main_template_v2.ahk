@@ -12,14 +12,26 @@
 
 ; {{BANK_CATEGORIES_JSON}}
 
+; Default bank categories configuration
+bankCategories := Map(
+    1, ["Weapons", "Equipment"],
+    2, ["Food", "Potions"],
+    3, ["Seeds", "Farming"],
+    4, ["Ores", "Bars", "Smithing"],
+    5, ["Logs", "Fletching"],
+    6, ["Runes", "Magic"],
+    7, ["Quest items", "Teleports"],
+    8, ["Miscellaneous"]
+)
+
 ; Configuration from template variables
 cfg := Map(
-    "AntiBan", "{{ANTIBAN}}",
-    "VoiceAlerts", {{VOICE}},
-    "WorldHop", {{WORLDHOP}},
-    "MaxSession", {{MAXSESSION}},
-    "UseOCR", {{USEOCR}},
-    "StealthMode", {{STEALTH}}
+    "AntiBan", "Stealth",
+    "VoiceAlerts", true,
+    "WorldHop", false,
+    "MaxSession", 120,
+    "UseOCR", false,
+    "StealthMode", false
 )
 
 ; ADB configuration
