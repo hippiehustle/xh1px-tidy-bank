@@ -364,7 +364,7 @@ MoveItemsToTab(items, tabNum) {
 
         ; Safety check: don't overfill tab
         if row >= maxRows {
-            Log("Warning: Tab " . tabNum . " full, cannot add more items")
+            Log("Warning: Tab " . tabNum . " full, cannot add more items", LogLevelConstants.WARNING)
             break
         }
     }
@@ -531,5 +531,5 @@ Log(message, level := LogLevelConstants.INFO) {
 ; Initialize systems
 InitializeBot()
 
-Log("xh1px's Tidy Bank v2.0 started")
+Log("xh1px's Tidy Bank v2.0 started", LogLevelConstants.INFO)
 Speak("xh1px's Tidy Bank ready. Press F1 to start, F2 for emergency stop, Escape to exit.")
