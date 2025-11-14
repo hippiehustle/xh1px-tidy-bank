@@ -1,0 +1,105 @@
+#!/bin/bash
+# SessionStart Hook - AutoHotkey Project Validation
+# This hook runs when a new Claude Code session starts
+# It validates all .ahk files for common syntax errors and issues
+
+echo "🔍 Running AutoHotkey project validation..."
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Counter for issues
+TOTAL_ISSUES=0
+FILES_CHECKED=0
+
+# Function to check a single .ahk file
+check_ahk_file() {
+    local file="$1"
+    local issues=0
+
+    echo -e "\n📄 Checking: ${file}"
+
+    # Check 1: Spaces in function/method names
+    if grep -n "^\s*\(static\s\+\)\?[A-Za-z_][A-Za-z0-9_]* [A-Za-z].*(" "$file" 2>/dev/null | grep -v "^[[:space:]]*;" | head -5; then
+        echo -e "${RED}  ❌ Found spaces in function/method names${NC}"
+        ((issues++))
+    fi
+
+    # Check 2: ListView.Modify with commas instead of empty strings
+    if grep -n "\.Modify([^)]*,\s*,\s*," "$file" 2>/dev/null | head -5; then
+        echo -e "${YELLOW}  ⚠️  ListView.Modify may need empty strings instead of commas${NC}"
+        echo -e "${YELLOW}     (AHK v2 requires empty strings for skipped parameters)${NC}"
+        ((issues++))
+    fi
+
+    # Check 3: Closures with loop variables (potential capture issues)
+    if grep -n "=>\s*.*A_Index\|=>\s*.*tabNum\|=>\s*.*i\b" "$file" 2>/dev/null | head -5; then
+        echo -e "${YELLOW}  ⚠️  Closure may capture loop variable - verify IIFE or .Bind() is used${NC}"
+        ((issues++))
+    fi
+
+    # Check 4: Global variable assignments without global declaration
+    # This is harder to detect automatically, but we can warn about common patterns
+    if grep -n "^\s*[A-Za-z_][A-Za-z0-9_]*\s*:=\s*Map()" "$file" 2>/dev/null | grep -v "global\s" | head -3; then
+        echo -e "${YELLOW}  ⚠️  Map assignment found - verify global declaration if needed${NC}"
+    fi
+
+    # Check 5: Missing closing braces (basic check)
+    local open_braces=$(grep -o "{" "$file" 2>/dev/null | wc -l)
+    local close_braces=$(grep -o "}" "$file" 2>/dev/null | wc -l)
+    if [ "$open_braces" -ne "$close_braces" ]; then
+        echo -e "${RED}  ❌ Mismatched braces: $open_braces open, $close_braces close${NC}"
+        ((issues++))
+    fi
+
+    # Check 6: Unclosed strings (basic check)
+    if grep -n "^\s*[^;]*\"\s*$" "$file" 2>/dev/null | grep -v '""' | head -3; then
+        echo -e "${YELLOW}  ⚠️  Potential unclosed string detected${NC}"
+    fi
+
+    if [ $issues -eq 0 ]; then
+        echo -e "${GREEN}  ✅ No issues detected${NC}"
+    fi
+
+    return $issues
+}
+
+# Find and check all .ahk files
+echo "Scanning for .ahk files..."
+ahk_files=$(find . -name "*.ahk" -not -path "./.*" -not -path "*/node_modules/*" 2>/dev/null)
+
+if [ -z "$ahk_files" ]; then
+    echo -e "${YELLOW}No .ahk files found in project${NC}"
+    exit 0
+fi
+
+# Check each file
+for file in $ahk_files; do
+    ((FILES_CHECKED++))
+    if check_ahk_file "$file"; then
+        ((TOTAL_ISSUES+=$?))
+    fi
+done
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "📊 Validation Summary"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "Files checked: ${FILES_CHECKED}"
+
+if [ $TOTAL_ISSUES -eq 0 ]; then
+    echo -e "Status: ${GREEN}✅ All checks passed${NC}"
+else
+    echo -e "Status: ${YELLOW}⚠️  $TOTAL_ISSUES potential issues detected${NC}"
+    echo ""
+    echo -e "${YELLOW}Note: These are automated pattern checks.${NC}"
+    echo -e "${YELLOW}Review flagged items to determine if they need fixes.${NC}"
+fi
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Always exit 0 so session can continue even if issues found
+exit 0
