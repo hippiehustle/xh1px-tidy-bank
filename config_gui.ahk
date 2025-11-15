@@ -74,14 +74,21 @@ if !FileExist(cfgFile) {
 }
 
 try {
-    userCfg := JSON.Parse(FileRead(cfgFile))
+    rawCfg := FileRead(cfgFile)
+    if rawCfg = "" {
+        throw Error("Config file is empty")
+    }
+    userCfg := JSON.Parse(rawCfg)
     if !userCfg.Has("BankCategories") {
         userCfg["BankCategories"] := defaultCfg["BankCategories"]
     }
-} catch {
+} catch as err {
+    OutputDebug("Config load error: " . err.Message . " - using defaults")
     userCfg := defaultCfg
     try {
         FileDelete(cfgFile)
+    } catch {
+        ; Failed to delete, will overwrite
     }
     FileAppend(JSON.Stringify(defaultCfg), cfgFile)
 }

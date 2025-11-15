@@ -88,12 +88,18 @@ class TimeConstants {
 }
 
 class FilePathConstants {
-    ; Base directories
+    ; EXTERNAL DEPENDENCIES:
+    ; - osrs-items-condensed.json: REQUIRED - Item database for bank organization
+    ; - user_config.json: Optional - User configuration, auto-created if missing
+    ; - BlueStacks: REQUIRED - Android emulator must be running for bot to work
+    ; - ADB (Android Debug Bridge): REQUIRED - Command line tool at 127.0.0.1:5555
+    ;
+    ; BASE DIRECTORIES
     static SCRIPT_DIR := A_ScriptDir
     static TEMP_DIR := A_Temp
     static LOG_DIR := A_ScriptDir . "\logs"
 
-    ; File names
+    ; FILE NAMES
     static SCREENSHOT_FILE := A_Temp . "\tidybank_screenshot.png"
     static CONFIG_FILE := A_ScriptDir . "\user_config.json"
     static DATABASE_FILE := A_ScriptDir . "\osrs-items-condensed.json"
