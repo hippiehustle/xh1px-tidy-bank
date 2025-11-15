@@ -127,7 +127,7 @@ class ADBConstants {
 
     ; ADB commands
     static CMD_SCREENCAP := " shell screencap -p /sdcard/bank.png"
-    static CMD_PULL := ' pull /sdcard/bank.png "'
+    static CMD_PULL := " pull /sdcard/bank.png"
     static CMD_TAP := " shell input tap"
     static CMD_SWIPE := " shell input swipe"
     static CMD_KEYEVENT := " shell input keyevent"

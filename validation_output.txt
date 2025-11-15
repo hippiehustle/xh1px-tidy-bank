@@ -1,0 +1,407 @@
+Loading AutoHotkey files...
+Found 8 .ahk files
+  - bank_tab_resolver.ahk
+  - config_gui.ahk
+  - constants.ahk
+  - item_grouping.ahk
+  - json_parser.ahk
+  - main.ahk
+  - main_template_v2.ahk
+  - performance.ahk
+
+=== STAGE 1.1: BRACE/BRACKET BALANCE CHECK ===
+[PASS] bank_tab_resolver.ahk: Braces balanced (48 pairs)
+[PASS] bank_tab_resolver.ahk: Brackets balanced (33 pairs)
+[PASS] bank_tab_resolver.ahk: Parentheses balanced (49 pairs)
+[PASS] config_gui.ahk: Braces balanced (118 pairs)
+[FAIL] config_gui.ahk: Bracket imbalance (137 open, 138 close)
+[PASS] config_gui.ahk: Parentheses balanced (298 pairs)
+[PASS] constants.ahk: Braces balanced (21 pairs)
+[PASS] constants.ahk: Brackets balanced (0 pairs)
+[FAIL] constants.ahk: Parenthesis imbalance (34 open, 35 close)
+[PASS] item_grouping.ahk: Braces balanced (44 pairs)
+[PASS] item_grouping.ahk: Brackets balanced (30 pairs)
+[PASS] item_grouping.ahk: Parentheses balanced (83 pairs)
+[FAIL] json_parser.ahk: Brace imbalance (9 open, 10 close)
+[FAIL] json_parser.ahk: Bracket imbalance (3 open, 2 close)
+[PASS] json_parser.ahk: Parentheses balanced (26 pairs)
+[FAIL] main.ahk: Brace imbalance (8 open, 4 close)
+[PASS] main.ahk: Brackets balanced (0 pairs)
+[PASS] main.ahk: Parentheses balanced (32 pairs)
+[PASS] main_template_v2.ahk: Braces balanced (85 pairs)
+[PASS] main_template_v2.ahk: Brackets balanced (35 pairs)
+[PASS] main_template_v2.ahk: Parentheses balanced (182 pairs)
+[PASS] performance.ahk: Braces balanced (36 pairs)
+[PASS] performance.ahk: Brackets balanced (5 pairs)
+[PASS] performance.ahk: Parentheses balanced (65 pairs)
+
+=== STAGE 1.2: FUNCTION DEFINITION & CALL VERIFICATION ===
+[FUNC] Found function: SortArray at bank_tab_resolver.ahk:183
+[FUNC] Found function: HasValue at bank_tab_resolver.ahk:221
+[FUNC] Found function: SortArray at bank_tab_resolver.ahk:231
+[FUNC] Found static method: Initialize at bank_tab_resolver.ahk:20
+[FUNC] Found static method: ResolveItemTab at bank_tab_resolver.ahk:49
+[FUNC] Found static method: ResolveMultipleItems at bank_tab_resolver.ahk:115
+[FUNC] Found static method: GetItemsForTab at bank_tab_resolver.ahk:130
+[FUNC] Found static method: GetConflictStats at bank_tab_resolver.ahk:145
+[FUNC] Found static method: ClearCache at bank_tab_resolver.ahk:199
+[FUNC] Found static method: GetTagMappings at bank_tab_resolver.ahk:204
+[FUNC] Found static method: IsTagMapped at bank_tab_resolver.ahk:209
+[FUNC] Found static method: GetTabForTag at bank_tab_resolver.ahk:214
+[FUNC] Found function: FileAppend at config_gui.ahk:73
+[FUNC] Found function: FileDelete at config_gui.ahk:84
+[FUNC] Found function: FileAppend at config_gui.ahk:86
+[FUNC] Found function: CreateCard at config_gui.ahk:154
+[FUNC] Found function: CreateCard at config_gui.ahk:184
+[FUNC] Found function: CreateCard at config_gui.ahk:200
+[FUNC] Found function: CreateCard at config_gui.ahk:266
+[FUNC] Found function: CreateCard at config_gui.ahk:293
+[FUNC] Found function: CreateCard at config_gui.ahk:386
+[FUNC] Found function: LoadExistingAssignments at config_gui.ahk:422
+[FUNC] Found function: SelectBankTabExclusive at config_gui.ahk:423
+[FUNC] Found function: LoadExistingAssignments at config_gui.ahk:428
+[FUNC] Found function: CreateCard at config_gui.ahk:458
+[FUNC] Found function: SelectBankTabExclusive at config_gui.ahk:476
+[FUNC] Found function: UpdateCurrentTabDisplay at config_gui.ahk:497
+[FUNC] Found function: UpdateListViewAvailability at config_gui.ahk:500
+[FUNC] Found function: UpdateCurrentTabDisplay at config_gui.ahk:502
+[FUNC] Found function: UpdateListViewAvailability at config_gui.ahk:520
+[FUNC] Found function: OnGroupCheckChanged at config_gui.ahk:552
+[FUNC] Found function: MsgBox at config_gui.ahk:564
+[FUNC] Found function: MsgBox at config_gui.ahk:589
+[FUNC] Found function: UpdateCurrentTabDisplay at config_gui.ahk:638
+[FUNC] Found function: OnGroupClick at config_gui.ahk:640
+[FUNC] Found function: MsgBox at config_gui.ahk:650
+[FUNC] Found function: RemoveGroupFromTab at config_gui.ahk:654
+[FUNC] Found function: UpdateCurrentTabDisplay at config_gui.ahk:698
+[FUNC] Found function: ClearCurrentBankTabExclusive at config_gui.ahk:700
+[FUNC] Found function: UpdateListViewAvailability at config_gui.ahk:722
+[FUNC] Found function: ResetToDefaultsExclusive at config_gui.ahk:725
+[FUNC] Found function: UpdateListViewAvailability at config_gui.ahk:738
+[FUNC] Found function: MsgBox at config_gui.ahk:740
+[FUNC] Found function: SaveAllSettingsExclusive at config_gui.ahk:743
+[FUNC] Found function: SaveConfig at config_gui.ahk:766
+[FUNC] Found function: FileDelete at config_gui.ahk:772
+[FUNC] Found function: FileAppend at config_gui.ahk:774
+[FUNC] Found function: MsgBox at config_gui.ahk:780
+[FUNC] Found function: MsgBox at config_gui.ahk:782
+[FUNC] Found function: MsgBox at config_gui.ahk:785
+[FUNC] Found function: ResetToDefaults at config_gui.ahk:788
+[FUNC] Found function: UpdateSliderDisplay at config_gui.ahk:817
+[FUNC] Found function: MsgBox at config_gui.ahk:820
+[FUNC] Found function: UpdateSliderDisplay at config_gui.ahk:823
+[FUNC] Found function: SaveConfig at config_gui.ahk:828
+[FUNC] Found function: SaveAllSettings at config_gui.ahk:840
+[FUNC] Found function: SaveConfig at config_gui.ahk:845
+[FUNC] Found function: FileDelete at config_gui.ahk:865
+[FUNC] Found function: MsgBox at config_gui.ahk:872
+[FUNC] Found function: MsgBox at config_gui.ahk:874
+[FUNC] Found function: MsgBox at config_gui.ahk:877
+[FUNC] Found function: GenerateBot at config_gui.ahk:880
+[FUNC] Found function: SaveAllSettings at config_gui.ahk:887
+[FUNC] Found function: GenerateMainScript at config_gui.ahk:890
+[FUNC] Found function: MsgBox at config_gui.ahk:898
+[FUNC] Found function: FileDelete at config_gui.ahk:919
+[FUNC] Found function: FileAppend at config_gui.ahk:921
+[FUNC] Found function: MsgBox at config_gui.ahk:925
+[FUNC] Found function: GenerateBankCategoriesCode at config_gui.ahk:929
+[FUNC] Found function: DirCreate at constants.ahk:107
+[FUNC] Found function: return at constants.ahk:158
+[FUNC] Found function: return at constants.ahk:164
+[FUNC] Found function: return at constants.ahk:169
+[FUNC] Found function: SafeSleep at constants.ahk:202
+[FUNC] Found function: Sleep at constants.ahk:205
+[FUNC] Found function: GetTimestamp at constants.ahk:212
+[FUNC] Found function: FilePathExists at constants.ahk:217
+[FUNC] Found function: SafeFileDelete at constants.ahk:222
+[FUNC] Found function: FileDelete at constants.ahk:225
+[FUNC] Found function: SafeDirCreate at constants.ahk:235
+[FUNC] Found function: DirCreate at constants.ahk:238
+[FUNC] Found function: IsApplicationRunning at constants.ahk:247
+[FUNC] Found function: RoundCoordinates at constants.ahk:256
+[FUNC] Found function: CalculateDistance at constants.ahk:261
+[FUNC] Found function: Clamp at constants.ahk:268
+[FUNC] Found function: IsValidScreenCoordinate at constants.ahk:278
+[FUNC] Found function: return at constants.ahk:282
+[FUNC] Found static method: GetCellPosition at constants.ahk:28
+[FUNC] Found static method: GetTabXCoordinate at constants.ahk:40
+[FUNC] Found static method: GetTabCoordinates at constants.ahk:48
+[FUNC] Found static method: GetShortPause at constants.ahk:77
+[FUNC] Found static method: GetMediumPause at constants.ahk:80
+[FUNC] Found static method: GetLongPause at constants.ahk:84
+[FUNC] Found static method: EnsureLogDirectory at constants.ahk:104
+[FUNC] Found static method: IsValidAntiBanMode at constants.ahk:146
+[FUNC] Found static method: IsValidMaxSession at constants.ahk:156
+[FUNC] Found static method: IsValidTabNumber at constants.ahk:162
+[FUNC] Found static method: IsValidGridCell at constants.ahk:168
+[FUNC] Found function: MsgBox at item_grouping.ahk:152
+[FUNC] Found function: MsgBox at item_grouping.ahk:162
+[FUNC] Found static method: LoadDatabase at item_grouping.ahk:145
+[FUNC] Found static method: GetItemById at item_grouping.ahk:168
+[FUNC] Found static method: GetItemByName at item_grouping.ahk:176
+[FUNC] Found static method: GetItemsByCoreGroup at item_grouping.ahk:191
+[FUNC] Found static method: GetItemsByTag at item_grouping.ahk:213
+[FUNC] Found static method: GetItemsByTags at item_grouping.ahk:235
+[FUNC] Found static method: FilterByMembers at item_grouping.ahk:276
+[FUNC] Found static method: ItemHasTag at item_grouping.ahk:292
+[FUNC] Found static method: ItemInCoreGroup at item_grouping.ahk:305
+[FUNC] Found static method: GetAllCoreGroups at item_grouping.ahk:318
+[FUNC] Found static method: GetAllSubgroups at item_grouping.ahk:326
+[FUNC] Found static method: GetSubgroupsForCoreGroup at item_grouping.ahk:334
+[FUNC] Found static method: SearchItemsByName at item_grouping.ahk:347
+[FUNC] Found static method: GetDatabaseStats at item_grouping.ahk:363
+[FUNC] Found function: return at json_parser.ahk:241
+[FUNC] Found static method: Parse at json_parser.ahk:6
+[FUNC] Found static method: Stringify at json_parser.ahk:18
+[FUNC] Found static method: _EscapeString at json_parser.ahk:43
+[FUNC] Found static method: _ParseObject at json_parser.ahk:55
+[FUNC] Found static method: _SkipWhitespace at json_parser.ahk:101
+[FUNC] Found static method: _ParseArray at json_parser.ahk:106
+[FUNC] Found static method: _ParseValue at json_parser.ahk:138
+[FUNC] Found static method: _ParseString at json_parser.ahk:179
+[FUNC] Found static method: _ParseNumber at json_parser.ahk:216
+[FUNC] Found static method: IsNumber at json_parser.ahk:238
+[FUNC] Found static method: _Join at json_parser.ahk:243
+[FUNC] Found function: Speak at main.ahk:117
+[FUNC] Found function: ComObject at main.ahk:121
+[FUNC] Found function: ToggleBot at main.ahk:130
+[FUNC] Found function: Speak at main.ahk:135
+[FUNC] Found function: SetTimer at main.ahk:137
+[FUNC] Found function: Speak at main.ahk:139
+[FUNC] Found function: PanicAbort at main.ahk:143
+[FUNC] Found function: Speak at main.ahk:145
+[FUNC] Found function: Run at main.ahk:147
+[FUNC] Found function: Run at main.ahk:149
+[FUNC] Found function: Run at main.ahk:151
+[FUNC] Found function: ExitApp at main.ahk:153
+[FUNC] Found function: BankSortLoop at main.ahk:155
+[FUNC] Found function: WinActivate at main.ahk:158
+[FUNC] Found function: AntiBan at main.ahk:160
+[FUNC] Found function: OpenBank at main.ahk:164
+[FUNC] Found function: ScreenshotBank at main.ahk:167
+[FUNC] Found function: Rearrange at main.ahk:173
+[FUNC] Found function: Log at main.ahk:175
+[FUNC] Found function: FileDelete at main.ahk:179
+[FUNC] Found function: PreloadCache at main.ahk:186
+[FUNC] Found function: MsgBox at main.ahk:192
+[FUNC] Found function: Log at main.ahk:206
+[FUNC] Found function: MsgBox at main.ahk:209
+[FUNC] Found function: ScreenshotBank at main.ahk:216
+[FUNC] Found function: RunWait at main.ahk:219
+[FUNC] Found function: Log at main.ahk:222
+[FUNC] Found function: ScanBank at main.ahk:225
+[FUNC] Found function: SortItems at main.ahk:262
+[FUNC] Found function: Rearrange at main.ahk:283
+[FUNC] Found function: UI_Drag at main.ahk:294
+[FUNC] Found function: UI_Drag at main.ahk:304
+[FUNC] Found function: Run at main.ahk:308
+[FUNC] Found function: Run at main.ahk:321
+[FUNC] Found function: Sleep at main.ahk:323
+[FUNC] Found function: Run at main.ahk:327
+[FUNC] Found function: AntiBan at main.ahk:334
+[FUNC] Found function: Sleep at main.ahk:345
+[FUNC] Found function: Sleep at main.ahk:349
+[FUNC] Found function: Sleep at main.ahk:353
+[FUNC] Found function: Speak at main.ahk:359
+[FUNC] Found function: ExitApp at main.ahk:361
+[FUNC] Found function: IsBankOpen at main.ahk:368
+[FUNC] Found function: OpenBank at main.ahk:373
+[FUNC] Found function: Speak at main.ahk:375
+[FUNC] Found function: Run at main.ahk:377
+[FUNC] Found function: Sleep at main.ahk:379
+[FUNC] Found function: ElapsedHours at main.ahk:381
+[FUNC] Found function: Log at main.ahk:385
+[FUNC] Found function: DirCreate at main.ahk:389
+[FUNC] Found function: FileAppend at main.ahk:396
+[FUNC] Found function: Log at main.ahk:401
+[FUNC] Found function: Speak at main.ahk:402
+[FUNC] Found static method: Parse at main.ahk:11
+[FUNC] Found static method: _ParseObject at main.ahk:17
+[FUNC] Found static method: _ParseValue at main.ahk:47
+[FUNC] Found static method: _ParseString at main.ahk:67
+[FUNC] Found static method: _ParseNumber at main.ahk:83
+[FUNC] Found function: InitializeBot at main_template_v2.ahk:50
+[FUNC] Found function: Log at main_template_v2.ahk:60
+[FUNC] Found function: ExitApp at main_template_v2.ahk:62
+[FUNC] Found function: Log at main_template_v2.ahk:67
+[FUNC] Found function: ExitApp at main_template_v2.ahk:69
+[FUNC] Found function: Log at main_template_v2.ahk:77
+[FUNC] Found function: Log at main_template_v2.ahk:79
+[FUNC] Found function: Log at main_template_v2.ahk:80
+[FUNC] Found function: Log at main_template_v2.ahk:83
+[FUNC] Found function: ValidateConfiguration at main_template_v2.ahk:89
+[FUNC] Found function: Log at main_template_v2.ahk:97
+[FUNC] Found function: Log at main_template_v2.ahk:104
+[FUNC] Found function: Log at main_template_v2.ahk:110
+[FUNC] Found function: Log at main_template_v2.ahk:116
+[FUNC] Found function: Speak at main_template_v2.ahk:124
+[FUNC] Found function: ComObject at main_template_v2.ahk:128
+[FUNC] Found function: Log at main_template_v2.ahk:130
+[FUNC] Found function: ToggleBot at main_template_v2.ahk:139
+[FUNC] Found function: Speak at main_template_v2.ahk:144
+[FUNC] Found function: Log at main_template_v2.ahk:146
+[FUNC] Found function: Speak at main_template_v2.ahk:148
+[FUNC] Found function: Log at main_template_v2.ahk:150
+[FUNC] Found function: PanicAbort at main_template_v2.ahk:153
+[FUNC] Found function: Speak at main_template_v2.ahk:156
+[FUNC] Found function: Run at main_template_v2.ahk:159
+[FUNC] Found function: Run at main_template_v2.ahk:161
+[FUNC] Found function: Run at main_template_v2.ahk:163
+[FUNC] Found function: Log at main_template_v2.ahk:165
+[FUNC] Found function: ExitApp at main_template_v2.ahk:167
+[FUNC] Found function: BankSortLoop at main_template_v2.ahk:169
+[FUNC] Found function: WinActivate at main_template_v2.ahk:174
+[FUNC] Found function: Log at main_template_v2.ahk:176
+[FUNC] Found function: AntiBan at main_template_v2.ahk:180
+[FUNC] Found function: OpenBank at main_template_v2.ahk:184
+[FUNC] Found function: ScreenshotBank at main_template_v2.ahk:190
+[FUNC] Found function: SortIntoTabs at main_template_v2.ahk:199
+[FUNC] Found function: Speak at main_template_v2.ahk:203
+[FUNC] Found function: Log at main_template_v2.ahk:209
+[FUNC] Found function: FileDelete at main_template_v2.ahk:216
+[FUNC] Found function: Log at main_template_v2.ahk:218
+[FUNC] Found function: ScreenshotBank at main_template_v2.ahk:227
+[FUNC] Found function: RunWait at main_template_v2.ahk:236
+[FUNC] Found function: Log at main_template_v2.ahk:242
+[FUNC] Found function: Log at main_template_v2.ahk:245
+[FUNC] Found function: ScanBank at main_template_v2.ahk:248
+[FUNC] Found function: DetectItemAtPosition at main_template_v2.ahk:284
+[FUNC] Found function: SortIntoTabs at main_template_v2.ahk:303
+[FUNC] Found function: MoveItemsToTab at main_template_v2.ahk:331
+[FUNC] Found function: MoveItemsToTab at main_template_v2.ahk:335
+[FUNC] Found function: SwitchBankTab at main_template_v2.ahk:338
+[FUNC] Found function: UI_Drag at main_template_v2.ahk:357
+[FUNC] Found function: Log at main_template_v2.ahk:367
+[FUNC] Found function: SwitchBankTab at main_template_v2.ahk:372
+[FUNC] Found function: Log at main_template_v2.ahk:378
+[FUNC] Found function: Run at main_template_v2.ahk:386
+[FUNC] Found function: Log at main_template_v2.ahk:391
+[FUNC] Found function: UI_Drag at main_template_v2.ahk:396
+[FUNC] Found function: Run at main_template_v2.ahk:404
+[FUNC] Found function: Log at main_template_v2.ahk:408
+[FUNC] Found function: Run at main_template_v2.ahk:424
+[FUNC] Found function: Log at main_template_v2.ahk:426
+[FUNC] Found function: Sleep at main_template_v2.ahk:428
+[FUNC] Found function: Run at main_template_v2.ahk:432
+[FUNC] Found function: Log at main_template_v2.ahk:436
+[FUNC] Found function: AntiBan at main_template_v2.ahk:445
+[FUNC] Found function: Sleep at main_template_v2.ahk:458
+[FUNC] Found function: Sleep at main_template_v2.ahk:462
+[FUNC] Found function: Sleep at main_template_v2.ahk:466
+[FUNC] Found function: Speak at main_template_v2.ahk:472
+[FUNC] Found function: ExitApp at main_template_v2.ahk:474
+[FUNC] Found function: IsBankOpen at main_template_v2.ahk:481
+[FUNC] Found function: OpenBank at main_template_v2.ahk:486
+[FUNC] Found function: Speak at main_template_v2.ahk:489
+[FUNC] Found function: Run at main_template_v2.ahk:493
+[FUNC] Found function: Log at main_template_v2.ahk:495
+[FUNC] Found function: Sleep at main_template_v2.ahk:497
+[FUNC] Found function: ElapsedHours at main_template_v2.ahk:499
+[FUNC] Found function: Log at main_template_v2.ahk:505
+[FUNC] Found function: OutputDebug at main_template_v2.ahk:510
+[FUNC] Found function: FileAppend at main_template_v2.ahk:520
+[FUNC] Found function: OutputDebug at main_template_v2.ahk:523
+[FUNC] Found function: InitializeBot at main_template_v2.ahk:532
+[FUNC] Found function: Log at main_template_v2.ahk:534
+[FUNC] Found function: Speak at main_template_v2.ahk:535
+[FUNC] Found function: FileAppend at performance.ahk:132
+[FUNC] Found function: __New at performance.ahk:147
+[FUNC] Found function: Complete at performance.ahk:153
+[FUNC] Found function: GetDuration at performance.ahk:170
+[FUNC] Found function: CreateTrackedOperation at performance.ahk:213
+[FUNC] Found function: LogPerformanceMetrics at performance.ahk:218
+[FUNC] Found function: GetPerformanceSummary at performance.ahk:223
+[FUNC] Found static method: Initialize at performance.ahk:14
+[FUNC] Found static method: StartTimer at performance.ahk:29
+[FUNC] Found static method: StopTimer at performance.ahk:34
+[FUNC] Found static method: RecordMetric at performance.ahk:47
+[FUNC] Found static method: GetMetric at performance.ahk:56
+[FUNC] Found static method: GetAllMetrics at performance.ahk:61
+[FUNC] Found static method: GetElapsedTime at performance.ahk:66
+[FUNC] Found static method: GetElapsedTimeFormatted at performance.ahk:71
+[FUNC] Found static method: GetAverageOperationTime at performance.ahk:87
+[FUNC] Found static method: GetPerformanceSummary at performance.ahk:98
+[FUNC] Found static method: Reset at performance.ahk:120
+[FUNC] Found static method: LogMetricsToFile at performance.ahk:125
+[FUNC] Found static method: RecordMemoryUsage at performance.ahk:185
+[FUNC] Found static method: RecordCPUUsage at performance.ahk:193
+[FUNC] Found static method: GetResourceReport at performance.ahk:200
+
+[INFO] Total functions defined: 128
+[INFO] Total function calls found: 549
+
+[WARN] Found 197 potentially undefined function calls:
+  [FAIL] config() called at bank_tab_resolver.ahk:10
+  [FAIL] items() called at bank_tab_resolver.ahk:16
+  [FAIL] number() called at bank_tab_resolver.ahk:34
+  [FAIL] Has() called at bank_tab_resolver.ahk:35
+  [FAIL] number() called at bank_tab_resolver.ahk:48
+  [FAIL] Has() called at bank_tab_resolver.ahk:54
+  [FAIL] Has() called at bank_tab_resolver.ahk:57
+  [FAIL] Has() called at bank_tab_resolver.ahk:65
+  [FAIL] Has() called at bank_tab_resolver.ahk:75
+  [FAIL] number() called at bank_tab_resolver.ahk:79
+  [FAIL] Has() called at bank_tab_resolver.ahk:88
+  [FAIL] Has() called at bank_tab_resolver.ahk:92
+  [FAIL] Has() called at bank_tab_resolver.ahk:119
+  [FAIL] Has() called at bank_tab_resolver.ahk:155
+  [FAIL] Has() called at bank_tab_resolver.ahk:159
+  [FAIL] Has() called at bank_tab_resolver.ahk:166
+  [FAIL] Has() called at bank_tab_resolver.ahk:210
+  [FAIL] tag() called at bank_tab_resolver.ahk:213
+  [FAIL] Has() called at bank_tab_resolver.ahk:216
+  [FAIL] SYSTEM() called at config_gui.ahk:11
+
+=== STAGE 1.5: STRING & QUOTE BALANCE CHECK ===
+[FAIL] config_gui.ahk:952 - Unbalanced quotes: escapedCategory := StrReplace(StrReplace(category, "\", "\\"
+[FAIL] constants.ahk:124 - Unbalanced quotes: static CMD_PULL := ' pull /sdcard/bank.png "'
+[FAIL] json_parser.ahk:47 - Unbalanced quotes: str := StrReplace(str, '"', '\"')
+[FAIL] json_parser.ahk:74 - Unbalanced quotes: if (SubStr(text, pos, 1) != '"')
+[FAIL] json_parser.ahk:148 - Unbalanced quotes: if (ch == '"')
+[FAIL] json_parser.ahk:182 - Unbalanced quotes: if (pos > textLen || SubStr(text, pos, 1) != '"')
+[FAIL] json_parser.ahk:188 - Unbalanced quotes: if (ch == '"') {
+[FAIL] json_parser.ahk:193 - Unbalanced quotes: if (ch == "\") {
+[FAIL] main.ahk:27 - Unbalanced quotes: if (SubStr(text, pos, 1) != '"')
+[FAIL] main.ahk:51 - Unbalanced quotes: if (ch == '"')
+[FAIL] main.ahk:72 - Unbalanced quotes: if (ch == '"') {
+[FAIL] main.ahk:77 - Unbalanced quotes: if (ch == "\")
+
+============================================================
+STAGE 1 VALIDATION REPORT
+============================================================
+
+Total Issues Found: 37
+  Critical: 17
+  High: 20
+  Medium: 0
+
+[CRITICAL] CRITICAL ISSUES:
+  [BRACKET_IMBALANCE] config_gui.ahk: Bracket imbalance: 137 open, 138 close
+  [PAREN_IMBALANCE] constants.ahk: Parenthesis imbalance: 34 open, 35 close
+  [BRACE_IMBALANCE] json_parser.ahk: Brace imbalance: 9 open, 10 close
+  [BRACKET_IMBALANCE] json_parser.ahk: Bracket imbalance: 3 open, 2 close
+  [BRACE_IMBALANCE] main.ahk: Brace imbalance: 8 open, 4 close
+  [QUOTE_IMBALANCE] config_gui.ahk: Unbalanced quotes on line 952: escapedCategory := StrReplace(StrReplace(category, "\", "\\"), '"', '\"')
+  [QUOTE_IMBALANCE] constants.ahk: Unbalanced quotes on line 124: static CMD_PULL := ' pull /sdcard/bank.png "'
+  [QUOTE_IMBALANCE] json_parser.ahk: Unbalanced quotes on line 47: str := StrReplace(str, '"', '\"')
+  [QUOTE_IMBALANCE] json_parser.ahk: Unbalanced quotes on line 74: if (SubStr(text, pos, 1) != '"')
+  [QUOTE_IMBALANCE] json_parser.ahk: Unbalanced quotes on line 148: if (ch == '"')
+  [QUOTE_IMBALANCE] json_parser.ahk: Unbalanced quotes on line 182: if (pos > textLen || SubStr(text, pos, 1) != '"')
+  [QUOTE_IMBALANCE] json_parser.ahk: Unbalanced quotes on line 188: if (ch == '"') {
+  [QUOTE_IMBALANCE] json_parser.ahk: Unbalanced quotes on line 193: if (ch == "\") {
+  [QUOTE_IMBALANCE] main.ahk: Unbalanced quotes on line 27: if (SubStr(text, pos, 1) != '"')
+  [QUOTE_IMBALANCE] main.ahk: Unbalanced quotes on line 51: if (ch == '"')
+  [QUOTE_IMBALANCE] main.ahk: Unbalanced quotes on line 72: if (ch == '"') {
+  [QUOTE_IMBALANCE] main.ahk: Unbalanced quotes on line 77: if (ch == "\")
+
+[HIGH] HIGH PRIORITY ISSUES:
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:10 - Function 'config' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:16 - Function 'items' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:34 - Function 'number' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:35 - Function 'Has' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:48 - Function 'number' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:54 - Function 'Has' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:57 - Function 'Has' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:65 - Function 'Has' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:75 - Function 'Has' called but not defined
+  [UNDEFINED_FUNCTION] bank_tab_resolver.ahk:79 - Function 'number' called but not defined

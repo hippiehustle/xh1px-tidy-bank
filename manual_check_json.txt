@@ -1,0 +1,34 @@
+Manual brace check for json_parser.ahk
+Let me trace EVERY method and count:
+
+class JSON { <-- Line 5, OPEN
+    static Parse(text) { <-- Line 6, OPEN
+        if (SubStr(text, 1, 1) == "{") { <-- Line 8, OPEN
+            return JSON._ParseObject(text, &pos)
+        } <-- Line 10+, CLOSE for if
+        else if (SubStr(text, 1, 1) == "[") { <-- Line 12, OPEN
+            return JSON._ParseArray(text, &pos)
+        } <-- Line 14+, CLOSE for else if
+        return ""
+    } <-- Line 17, CLOSE for Parse
+
+    static Stringify(obj) { <-- Line 19, OPEN
+        if (obj is Map) { <-- Line 20, OPEN
+            ...
+        } <-- Line 24+, CLOSE for if
+        else if (obj is Array) { <-- Line 26, OPEN
+            ...
+        } <-- Line 30+, CLOSE for else if
+        else if (obj is String)
+            return JSON._EscapeString(obj)
+        else if (obj = true)
+            return "true"
+        else if (obj = false)
+            return "false"
+        else if (obj = "")
+            return "null"
+        else
+            return String(obj)
+    } <-- Line 42, CLOSE for Stringify
+
+Let me look at the structure...
