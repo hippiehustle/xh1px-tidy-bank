@@ -1,106 +1,21 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+#Include json_parser.ahk
 
 ; ==========================================
 ; xh1px's Tidy Bank - OSRS Bank Sorter Bot
 ; Version: 1.0.0
 ; ==========================================
 
-; Inline JSON Library
-class JSON {
-    static Parse(text) {
-        text := Trim(text)
-        if (SubStr(text, 1, 1) == "{")
-            return JSON._ParseObject(text, &pos := 1)
-        return ""
-    }
-    static _ParseObject(text, &pos) {
-        obj := Map()
-        pos++
-        while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-            pos++
-        if (SubStr(text, pos, 1) == "}")
-            return obj
-        loop {
-            while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-                pos++
-            if (SubStr(text, pos, 1) != '"')
-                break
-            key := JSON._ParseString(text, &pos)
-            while (pos <= StrLen(text) && InStr(" `t`r`n:", SubStr(text, pos, 1)))
-                pos++
-            value := JSON._ParseValue(text, &pos)
-            obj[key] := value
-            while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-                pos++
-            ch := SubStr(text, pos, 1)
-            if (ch == "}")
-                return obj
-            if (ch == ",") {
-                pos++
-                continue
-            }
-            break
-        }
-        return obj
-    }
-    static _ParseValue(text, &pos) {
-        while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-            pos++
-        ch := SubStr(text, pos, 1)
-        if (ch == '"')
-            return JSON._ParseString(text, &pos)
-        else if (ch == "{")
-            return JSON._ParseObject(text, &pos)
-        else if (ch == "t") {
-            pos += 4
-            return true
-        }
-        else if (ch == "f") {
-            pos += 5
-            return false
-        }
-        else if (InStr("0123456789-", ch))
-            return JSON._ParseNumber(text, &pos)
-        return ""
-    }
-    static _ParseString(text, &pos) {
-        pos++
-        start := pos
-        while (pos <= StrLen(text)) {
-            ch := SubStr(text, pos, 1)
-            if (ch == '"') {
-                result := SubStr(text, start, pos - start)
-                pos++
-                return result
-            }
-            if (ch == "\")
-                pos++
-            pos++
-        }
-        return ""
-    }
-    static _ParseNumber(text, &pos) {
-        start := pos
-        while (pos <= StrLen(text)) {
-            ch := SubStr(text, pos, 1)
-            if (!InStr("0123456789.-+", ch))
-                break
-            pos++
-        }
-        return Number(SubStr(text, start, pos - start))
-    }
-}
-
 ; Configuration from template variables
 cfg := Map(
-    "AntiBan", "Psychopath", 
-    "VoiceAlerts", "false", 
-    "WorldHop", "false", 
-    "SortMode", "GEValue", 
-    "MaxSession", "240", 
-    "UseOCR", "false", 
-    "StealthMode", "true"
+    "AntiBan", "Psychopath",
+    "VoiceAlerts", false,
+    "WorldHop", false,
+    "SortMode", "GEValue",
+    "MaxSession", 240,
+    "UseOCR", false,
+    "StealthMode", true
 )
 
 ; ADB configuration
@@ -115,8 +30,29 @@ itemHashes := Map()
 ; CORE FUNCTIONS
 ; ==========================================
 
-Speak(t) { 
-    if (cfg["VoiceAlerts"] = "true") {
+; Validate ADB connection and BlueStacks
+ValidateEnvironment() {
+    global adb
+
+    ; Check if BlueStacks window exists
+    if !WinExist("BlueStacks") {
+        MsgBox("BlueStacks is not running!`n`nPlease start BlueStacks and try again.", "xh1px's Tidy Bank - Error", 16)
+        return false
+    }
+
+    ; Test ADB connection
+    try {
+        RunWait(adb " shell echo test", , "Hide")
+        Log("ADB connection validated successfully")
+        return true
+    } catch as err {
+        MsgBox("ADB connection failed!`n`nError: " . err.Message . "`n`nPlease ensure ADB is running at 127.0.0.1:5555", "xh1px's Tidy Bank - Error", 16)
+        return false
+    }
+}
+
+Speak(t) {
+    if (cfg["VoiceAlerts"]) {
         try {
             ComObject("SAPI.SpVoice").Speak(t, 0)
         }
@@ -128,14 +64,27 @@ F1::ToggleBot()
 F2::PanicAbort()
 Esc::ExitApp()
 
-ToggleBot() { 
+ToggleBot() {
     global running
     running := !running
-    if (running) { 
+    if (running) {
+        ; Validate environment before starting
+        if (!ValidateEnvironment()) {
+            running := false
+            return
+        }
+
         Speak("xh1px's Tidy Bank activated")
-        PreloadCache()
+
+        ; Check if database loaded successfully
+        if (!PreloadCache()) {
+            running := false
+            Speak("Failed to load item database")
+            return
+        }
+
         SetTimer(BankSortLoop, 800)
-    } else { 
+    } else {
         Speak("Bot deactivated")
         SetTimer(BankSortLoop, 0)
     }
@@ -184,29 +133,37 @@ BankSortLoop() {
 ; DATABASE FUNCTIONS
 ; ==========================================
 
-PreloadCache() { 
+PreloadCache() {
     global db, itemHashes
-    
-    dbPath := A_ScriptDir "\osrsbox-db.json"
+
+    dbPath := A_ScriptDir "\osrs-items-condensed.json"
     if !FileExist(dbPath) {
         MsgBox("Database file not found: " dbPath, "xh1px's Tidy Bank - Error", 16)
-        return
+        Log("ERROR: Database file not found: " . dbPath)
+        return false
     }
-    
+
     try {
         raw := FileRead(dbPath)
         data := JSON.Parse(raw)
-        
+
+        if (!data || !data.Count) {
+            throw Error("Database is empty or invalid")
+        }
+
         for itemId, item in data {
             db[Integer(itemId)] := Map(
                 "name", item["name"],
                 "ge", item.Has("current") && item["current"].Has("price") ? item["current"]["price"] : 0
             )
         }
-        
-        Log("xh1px's Tidy Bank: Loaded " db.Count " items from database")
+
+        Log("xh1px's Tidy Bank: Loaded " . db.Count . " items from database")
+        return true
     } catch as err {
-        MsgBox("Error loading database: " err.Message, "xh1px's Tidy Bank - Error", 16)
+        MsgBox("Error loading database: " . err.Message, "xh1px's Tidy Bank - Error", 16)
+        Log("ERROR: Failed to load database: " . err.Message)
+        return false
     }
 }
 
@@ -223,25 +180,47 @@ ScreenshotBank() {
     }
 }
 
-ScanBank() { 
+ScanBank() {
     items := []
-    
+
     if !FileExist(screenshot) {
         return items
     }
-    
+
+    ; ============================================
+    ; IMPORTANT: PLACEHOLDER IMPLEMENTATION
+    ; ============================================
+    ; This function currently generates RANDOM item IDs for testing.
+    ;
+    ; PRODUCTION IMPLEMENTATION REQUIRES:
+    ; 1. OCR text recognition (Tesseract) to read item names
+    ; 2. Image template matching to identify items by icon
+    ; 3. Hash-based item identification using itemHashes Map
+    ; 4. Confidence scoring for detection accuracy
+    ;
+    ; STEPS TO IMPLEMENT:
+    ; A) Install Tesseract OCR
+    ; B) Create item icon template database
+    ; C) Implement image processing in each grid cell
+    ; D) Match detected text/image to item database
+    ; E) Return actual item IDs with confidence scores
+    ;
+    ; CURRENT BEHAVIOR: Returns random items for testing
+    ; ============================================
+
     ; Scan 8x8 grid of bank slots
-    Loop 8 { 
+    Loop 8 {
         row := A_Index - 1
         rowY := row * 60 + 150
-        
-        Loop 8 { 
+
+        Loop 8 {
             col := A_Index - 1
             colX := col * 60 + 50
-            
-            ; Placeholder: In production, this would analyze the screenshot
+
+            ; PLACEHOLDER: Random item generation for testing
+            ; TODO: Replace with actual OCR/image detection
             id := Random(1, 100) > 50 ? Random(1, 1000) : 0
-            
+
             if (id > 0) {
                 items.Push(Map(
                     "id", id,
@@ -252,7 +231,7 @@ ScanBank() {
             }
         }
     }
-    
+
     return items
 }
 
@@ -302,8 +281,8 @@ Rearrange(items) {
     }
 }
 
-UI_Drag(sx, sy, ex, ey) { 
-    if (cfg["StealthMode"] = "true") {
+UI_Drag(sx, sy, ex, ey) {
+    if (cfg["StealthMode"]) {
         try {
             Run(adb " shell input swipe " Round(sx) " " Round(sy) " " Round(ex) " " Round(ey) " 150", , "Hide")
         }
@@ -332,8 +311,8 @@ UI_Drag(sx, sy, ex, ey) {
 ; ANTI-BAN SYSTEM
 ; ==========================================
 
-AntiBan() { 
-    if (cfg["StealthMode"] = "true" || cfg["AntiBan"] = "Off") {
+AntiBan() {
+    if (cfg["StealthMode"] || cfg["AntiBan"] = "Off") {
         return
     }
     
@@ -367,8 +346,33 @@ AntiBan() {
 ; ==========================================
 
 IsBankOpen() {
-    ; Placeholder: In production would analyze screenshot
-    return true
+    ; IMPROVED: Basic detection with screenshot validation
+    ; TODO: Full implementation should include:
+    ; - OCR text detection for "Bank of" title
+    ; - Pixel color checking for bank interface elements
+    ; - Template matching for bank icon
+
+    global screenshot
+
+    if !FileExist(screenshot) {
+        return false
+    }
+
+    ; Check if screenshot is recent (created in last 5 seconds)
+    ; This is a basic sanity check - full implementation needs actual image analysis
+    try {
+        fileTime := FileGetTime(screenshot, "M")
+        currentTime := A_Now
+
+        ; Calculate time difference in seconds
+        timeDiff := DateDiff(currentTime, fileTime, "S")
+
+        ; If screenshot is recent, assume bank might be open
+        ; In production, this should be replaced with actual image detection
+        return (timeDiff < 5)
+    } catch {
+        return false
+    }
 }
 
 OpenBank() {

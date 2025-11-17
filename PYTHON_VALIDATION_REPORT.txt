@@ -2,12 +2,12 @@
 COMPREHENSIVE PROJECT VALIDATION REPORT
 ================================================================================
 
-Generated: Sun Nov 16 09:03:47 PM MST 2025
+Generated: Sun Nov 16 09:27:05 PM MST 2025
 
 SUMMARY:
-  Critical/Errors: 85
+  Critical/Errors: 67
   Warnings: 13
-  Info: 42
+  Info: 47
 
 ================================================================================
 CRITICAL ISSUES & ERRORS
@@ -75,26 +75,8 @@ ERROR      | json_parser.ahk                | Line  210 | Unmatched closing brac
 ERROR      | json_parser.ahk                | Line  213 | Unmatched closing brace }
 ERROR      | json_parser.ahk                | Line  215 | Unmatched closing brace }
 ERROR      | json_parser.ahk                | Line  253 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   10 | Unclosed {
-ERROR      | main.ahk                       | Line   17 | Unclosed {
-ERROR      | main.ahk                       | Line   24 | Unclosed {
-ERROR      | main.ahk                       | Line   27 | Unclosed (
-ERROR      | main.ahk                       | Line   27 | Unbalanced quotes in line
-ERROR      | main.ahk                       | Line   44 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   46 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   47 | Unclosed {
-ERROR      | main.ahk                       | Line   51 | Unclosed (
-ERROR      | main.ahk                       | Line   51 | Unbalanced quotes in line
-ERROR      | main.ahk                       | Line   66 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   67 | Unclosed {
-ERROR      | main.ahk                       | Line   70 | Unclosed {
-ERROR      | main.ahk                       | Line   72 | Unclosed (
-ERROR      | main.ahk                       | Line   72 | Unbalanced quotes in line
-ERROR      | main.ahk                       | Line   76 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   77 | Unclosed (
-ERROR      | main.ahk                       | Line   80 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   82 | Unmatched closing brace }
-ERROR      | main.ahk                       | Line   93 | Unmatched closing brace }
+ERROR      | main.ahk                       | Line  364 | Call to undefined function: FileGetTime
+ERROR      | main.ahk                       | Line  368 | Call to undefined function: DateDiff
 ERROR      | performance.ahk                | Line  202 | Call to undefined function: MB
 ERROR      | performance.ahk                | Line  214 | Call to undefined function: OperationTracker
 
@@ -112,8 +94,8 @@ WARNING    | item_grouping.ahk              | Line   51 | Risky operation Run wi
 WARNING    | item_grouping.ahk              | Line   94 | Risky operation Run without try-catch
 WARNING    | item_grouping.ahk              | Line   95 | Risky operation Run without try-catch
 WARNING    | item_grouping.ahk              | Line   96 | Risky operation Run without try-catch
-WARNING    | main.ahk                       | Line  179 | Risky operation FileDelete without try-catch
-WARNING    | main.ahk                       | Line  389 | Risky operation DirCreate without try-catch
+WARNING    | main.ahk                       | Line  128 | Risky operation FileDelete without try-catch
+WARNING    | main.ahk                       | Line  393 | Risky operation DirCreate without try-catch
 
 ================================================================================
 INFORMATIONAL
@@ -149,11 +131,16 @@ INFO       | item_grouping.ahk              | Line  312 | Function returns const
 INFO       | item_grouping.ahk              | Line  314 | Function returns constant - verify implementation
 INFO       | json_parser.ahk                | Line  157 | Function returns constant - verify implementation
 INFO       | json_parser.ahk                | Line  164 | Function returns constant - verify implementation
-INFO       | main.ahk                       | Line   57 | Function returns constant - verify implementation
-INFO       | main.ahk                       | Line   61 | Function returns constant - verify implementation
-INFO       | main.ahk                       | Line  242 | Placeholder function detected - needs implementation
-INFO       | main.ahk                       | Line  370 | Placeholder function detected - needs implementation
-INFO       | main.ahk                       | Line  371 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line   40 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line   47 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line   50 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  143 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  162 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  166 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  191 | Placeholder function detected - needs implementation
+INFO       | main.ahk                       | Line  220 | Placeholder function detected - needs implementation
+INFO       | main.ahk                       | Line  358 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  374 | Function returns constant - verify implementation
 INFO       | performance.ahk                | Line  134 | Function returns constant - verify implementation
 INFO       | performance.ahk                | Line  136 | Function returns constant - verify implementation
 INFO       | performance.ahk                | Line  187 | Placeholder function detected - needs implementation

@@ -15,7 +15,11 @@
       "Bash(python validate_syntax.py:*)",
       "Bash(validation_output.txt)",
       "Bash(python check_braces.py:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(python3:*)",
+      "Bash(chmod:*)",
+      "Bash(git config:*)",
+      "Bash(test -f:*)"
     ],
     "deny": [],
     "ask": []
