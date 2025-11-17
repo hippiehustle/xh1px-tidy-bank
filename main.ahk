@@ -90,7 +90,9 @@ ToggleBot() {
     }
 }
 
-PanicAbort() { 
+PanicAbort() {
+    global adb
+
     Speak("Emergency shutdown")
     try {
         Run(adb " shell input keyevent 4")
@@ -102,28 +104,30 @@ PanicAbort() {
     ExitApp()
 }
 
-BankSortLoop() { 
+BankSortLoop() {
+    global cfg, screenshot
+
     try {
         WinActivate("BlueStacks")
     }
-    
+
     AntiBan()
-    
-    if (!IsBankOpen()) { 
+
+    if (!IsBankOpen()) {
         OpenBank()
         return
     }
-    
+
     ScreenshotBank()
     items := ScanBank()
-    
+
     if (items.Length > 0) {
         sorted := SortItems(items, cfg["SortMode"])
         Rearrange(sorted)
         Speak("Sorted " items.Length " items")
         Log("Sorted " items.Length " items")
     }
-    
+
     if FileExist(screenshot) {
         FileDelete(screenshot)
     }
@@ -138,7 +142,7 @@ PreloadCache() {
 
     dbPath := A_ScriptDir "\osrs-items-condensed.json"
     if !FileExist(dbPath) {
-        MsgBox("Database file not found: " dbPath, "xh1px's Tidy Bank - Error", 16)
+        MsgBox("Database file not found: " . dbPath, "xh1px's Tidy Bank - Error", 16)
         Log("ERROR: Database file not found: " . dbPath)
         return false
     }
@@ -176,11 +180,13 @@ ScreenshotBank() {
         RunWait(adb " shell screencap -p /sdcard/bank.png", , "Hide")
         RunWait(adb ' pull /sdcard/bank.png "' screenshot '"', , "Hide")
     } catch as err {
-        Log("Screenshot error: " err.Message)
+        Log("Screenshot error: " . err.Message)
     }
 }
 
 ScanBank() {
+    global screenshot
+
     items := []
 
     if !FileExist(screenshot) {
@@ -239,7 +245,9 @@ ScanBank() {
 ; SORTING & REARRANGING
 ; ==========================================
 
-SortItems(items, mode) { 
+SortItems(items, mode) {
+    global db, cfg
+
     for item in items {
         if db.Has(item["id"]) {
             switch mode {
@@ -256,7 +264,7 @@ SortItems(items, mode) {
             item["value"] := 0
         }
     }
-    
+
     return items
 }
 
@@ -282,6 +290,8 @@ Rearrange(items) {
 }
 
 UI_Drag(sx, sy, ex, ey) {
+    global adb, cfg
+
     if (cfg["StealthMode"]) {
         try {
             Run(adb " shell input swipe " Round(sx) " " Round(sy) " " Round(ex) " " Round(ey) " 150", , "Hide")
@@ -312,12 +322,14 @@ UI_Drag(sx, sy, ex, ey) {
 ; ==========================================
 
 AntiBan() {
+    global cfg, sessionStart
+
     if (cfg["StealthMode"] || cfg["AntiBan"] = "Off") {
         return
     }
-    
+
     r := Random(1, 100)
-    
+
     switch cfg["AntiBan"] {
         case "Psychopath":
             if (r < 2 && ElapsedHours() > 2) {
@@ -376,6 +388,8 @@ IsBankOpen() {
 }
 
 OpenBank() {
+    global adb
+
     Speak("Opening bank")
     try {
         Run(adb " shell input tap 960 540", , "Hide")
@@ -383,7 +397,9 @@ OpenBank() {
     Sleep(2000)
 }
 
-ElapsedHours() { 
+ElapsedHours() {
+    global sessionStart
+
     return Round((A_TickCount - sessionStart) / 3600000, 1)
 }
 
