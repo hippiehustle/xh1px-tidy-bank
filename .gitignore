@@ -38,3 +38,4 @@ osrsbox-db.json
 
 # Archive directory
 archive/
+__pycache__/
