@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Include json_parser.ahk
 
 ; ==========================================
 ; OSRS Item Grouping System
@@ -179,7 +180,7 @@ class ItemGroupingSystem {
         searchName := StrLower(itemName)
 
         for itemId, item in this.itemsDB {
-            if StrLower(item.name) == searchName
+            if (item.Has("name") && StrLower(item["name"]) == searchName)
                 return item
         }
 
@@ -195,10 +196,12 @@ class ItemGroupingSystem {
         coreGroupUpper := StrUpper(coreGroup)
 
         for itemId, item in this.itemsDB {
-            for group in item.core_groups {
-                if group == coreGroupUpper {
-                    items.Push(item)
-                    break
+            if (item.Has("core_groups")) {
+                for group in item["core_groups"] {
+                    if group == coreGroupUpper {
+                        items.Push(item)
+                        break
+                    }
                 }
             }
         }
@@ -215,10 +218,12 @@ class ItemGroupingSystem {
         tagLower := StrLower(tag)
 
         for itemId, item in this.itemsDB {
-            for itemTag in item.tags {
-                if StrLower(itemTag) == tagLower {
-                    items.Push(item)
-                    break
+            if (item.Has("tags")) {
+                for itemTag in item["tags"] {
+                    if StrLower(itemTag) == tagLower {
+                        items.Push(item)
+                        break
+                    }
                 }
             }
         }
@@ -242,18 +247,22 @@ class ItemGroupingSystem {
             hasAllTags := true
 
             ; Check if item has all required tags
-            for searchTag in searchTags {
-                found := false
-                for itemTag in item.tags {
-                    if StrLower(itemTag) == searchTag {
-                        found := true
+            if (item.Has("tags")) {
+                for searchTag in searchTags {
+                    found := false
+                    for itemTag in item["tags"] {
+                        if StrLower(itemTag) == searchTag {
+                            found := true
+                            break
+                        }
+                    }
+                    if !found {
+                        hasAllTags := false
                         break
                     }
                 }
-                if !found {
-                    hasAllTags := false
-                    break
-                }
+            } else {
+                hasAllTags := false
             }
 
             if hasAllTags
@@ -267,11 +276,12 @@ class ItemGroupingSystem {
     static FilterByMembers(items, membersOnly) {
         filtered := []
         for item in items {
+            isMember := (item.Has("members") && item["members"]) ? true : false
             if membersOnly {
-                if item.members
+                if isMember
                     filtered.Push(item)
             } else {
-                if !item.members
+                if !isMember
                     filtered.Push(item)
             }
         }
@@ -280,11 +290,11 @@ class ItemGroupingSystem {
 
     ; Check if item has a specific tag
     static ItemHasTag(item, tag) {
-        if !item || !item.tags
+        if !item || !item.Has("tags")
             return false
 
         tagLower := StrLower(tag)
-        for itemTag in item.tags {
+        for itemTag in item["tags"] {
             if StrLower(itemTag) == tagLower
                 return true
         }
@@ -293,11 +303,11 @@ class ItemGroupingSystem {
 
     ; Check if item belongs to core group
     static ItemInCoreGroup(item, coreGroup) {
-        if !item || !item.core_groups
+        if !item || !item.Has("core_groups")
             return false
 
         coreGroupUpper := StrUpper(coreGroup)
-        for group in item.core_groups {
+        for group in item["core_groups"] {
             if group == coreGroupUpper
                 return true
         }
@@ -342,7 +352,7 @@ class ItemGroupingSystem {
         searchLower := StrLower(searchTerm)
 
         for itemId, item in this.itemsDB {
-            if InStr(StrLower(item.name), searchLower)
+            if (item.Has("name") && InStr(StrLower(item["name"]), searchLower))
                 results.Push(item)
         }
 
@@ -365,63 +375,26 @@ class ItemGroupingSystem {
         for itemId, item in this.itemsDB {
             stats["totalItems"]++
 
-            if item.members
+            isMember := (item.Has("members") && item["members"]) ? true : false
+            if isMember
                 stats["membersItems"]++
             else
                 stats["f2pItems"]++
 
-            if item.stackable
+            isStackable := (item.Has("stackable") && item["stackable"]) ? true : false
+            if isStackable
                 stats["stackableItems"]++
 
             ; Count core groups
-            for group in item.core_groups {
-                if !stats["coreGroupCounts"].Has(group)
-                    stats["coreGroupCounts"][group] := 0
-                stats["coreGroupCounts"][group]++
+            if (item.Has("core_groups")) {
+                for group in item["core_groups"] {
+                    if !stats["coreGroupCounts"].Has(group)
+                        stats["coreGroupCounts"][group] := 0
+                    stats["coreGroupCounts"][group]++
+                }
             }
         }
 
         return stats
     }
-}
-
-; Example usage function (for testing)
-TestItemGrouping() {
-    ; Load database
-    if !ItemGroupingSystem.LoadDatabase() {
-        MsgBox("Failed to load database!", "Error", "Icon!")
-        return
-    }
-
-    ; Test 1: Get item by name
-    whip := ItemGroupingSystem.GetItemByName("Abyssal whip")
-    if whip {
-        msg := "Abyssal Whip:`n"
-        msg .= "ID: " . whip.id . "`n"
-        msg .= "Core Groups: " . JSON.Stringify(whip.core_groups) . "`n"
-        msg .= "Tags: " . whip.tags.Length . " total`n"
-        MsgBox(msg, "Test 1: Get Item by Name", "Iconi")
-    }
-
-    ; Test 2: Get all items in EQUIPMENT core group
-    equipment := ItemGroupingSystem.GetItemsByCoreGroup("EQUIPMENT")
-    MsgBox("Found " . equipment.Length . " equipment items", "Test 2: Core Group", "Iconi")
-
-    ; Test 3: Get all items with skill_herblore tag
-    herbloreItems := ItemGroupingSystem.GetItemsByTag("skill_herblore")
-    MsgBox("Found " . herbloreItems.Length . " Herblore items", "Test 3: Tag Search", "Iconi")
-
-    ; Test 4: Database statistics
-    stats := ItemGroupingSystem.GetDatabaseStats()
-    msg := "Database Statistics:`n`n"
-    msg .= "Total Items: " . stats["totalItems"] . "`n"
-    msg .= "Members Items: " . stats["membersItems"] . "`n"
-    msg .= "F2P Items: " . stats["f2pItems"] . "`n"
-    msg .= "Stackable Items: " . stats["stackableItems"] . "`n`n"
-    msg .= "Core Group Distribution:`n"
-
-    for group, count in stats["coreGroupCounts"]
-        msg .= "  " . group . ": " . count . "`n"
-
-    MsgBox(msg, "Test 4: Statistics", "Iconi")
 }

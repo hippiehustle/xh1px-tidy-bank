@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Include item_grouping.ahk
 
 ; ==========================================
 ; Bank Tab Conflict Resolution System
@@ -22,9 +23,9 @@ class BankTabResolver {
         this.resolvedCache := Map()
 
         ; Build mapping from categories/tags to tab numbers
-        ; bankCategories structure: Map("tab_0" -> ["Ranged", "Magic"], "tab_1" -> [...])
+        ; bankCategories structure: Map(1 -> ["Ranged", "Magic"], 2 -> [...])
         for tabKey, categories in bankCategories {
-            tabNum := Integer(SubStr(tabKey, 5)) + 1  ; "tab_0" -> 1, "tab_1" -> 2, etc.
+            tabNum := tabKey  ; Direct tab number from the key
 
             for category in categories {
                 categoryLower := StrLower(category)
@@ -244,68 +245,4 @@ SortArray(&arr) {
             }
         }
     }
-}
-
-; Example usage and testing
-TestConflictResolution() {
-    ; Load item grouping system
-    #Include item_grouping.ahk
-
-    if !ItemGroupingSystem.LoadDatabase() {
-        MsgBox("Failed to load item database!", "Error", "Icon!")
-        return
-    }
-
-    ; Simulate user configuration
-    ; User wants: Tab 1 = Fishing, Tab 2 = Food/Consumables
-    testConfig := Map(
-        "tab_0", ["Fishing", "skill_fishing"],
-        "tab_1", ["Food", "consume_food", "Consumables"],
-        "tab_2", ["Combat", "equip_melee"],
-        "tab_3", []
-    )
-
-    ; Initialize resolver
-    BankTabResolver.Initialize(testConfig)
-
-    ; Test with Shark (has both fishing and food tags)
-    shark := ItemGroupingSystem.GetItemByName("Shark")
-    if shark {
-        sharkTab := BankTabResolver.ResolveItemTab(shark)
-        MsgBox("Shark Conflict Resolution:`n`nShark has tags:`n  - skill_fishing (Tab 1)`n  - consume_food (Tab 2)`n`nResolved to: Tab " . sharkTab . " (lowest tab wins)", "Conflict Test", "Iconi")
-    }
-
-    ; Test with multiple items
-    testItems := []
-    testItemNames := ["Shark", "Raw shark", "Abyssal whip", "Rune scimitar", "Ranarr seed"]
-
-    for itemName in testItemNames {
-        item := ItemGroupingSystem.GetItemByName(itemName)
-        if item {
-            testItems.Push(item)
-        }
-    }
-
-    ; Get conflict statistics
-    stats := BankTabResolver.GetConflictStats(testItems)
-
-    msg := "Conflict Resolution Statistics:`n`n"
-    msg .= "Total Items: " . stats["totalItems"] . "`n"
-    msg .= "Items with Conflicts: " . stats["itemsWithConflicts"] . "`n"
-    msg .= "Items Resolved: " . stats["itemsResolved"] . "`n"
-    msg .= "Unassigned Items: " . stats["itemsUnassigned"] . "`n`n"
-
-    if stats["conflictDetails"].Length > 0 {
-        msg .= "Conflict Details:`n"
-        for conflict in stats["conflictDetails"] {
-            msg .= "  " . conflict["item"] . " -> Tab " . conflict["resolvedTab"] . "`n"
-            msg .= "    (Conflicted between tabs: "
-            for tab in conflict["conflictingTabs"] {
-                msg .= tab . " "
-            }
-            msg .= ")`n"
-        }
-    }
-
-    MsgBox(msg, "Test Results", "Iconi")
 }

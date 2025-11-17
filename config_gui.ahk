@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+#Include json_parser.ahk
 #Include item_grouping.ahk
 
 ; ==========================================
@@ -42,168 +43,6 @@ SpacingSystem := Map(
 )
 
 ; ==========================================
-; JSON PARSER (EMBEDDED)
-; ==========================================
-
-class JSON {
-    static Parse(text) {
-        text := Trim(text)
-        if (SubStr(text, 1, 1) == "{")
-            return JSON._ParseObject(text, &pos := 1)
-        else if (SubStr(text, 1, 1) == "[")
-            return JSON._ParseArray(text, &pos := 1)
-        return ""
-    }
-
-    static Stringify(obj) {
-        if (obj is Map) {
-            items := []
-            for key, value in obj
-                items.Push('"' . key . '":' . JSON.Stringify(value))
-            return "{" . JSON._Join(items, ",") . "}"
-        }
-        else if (obj is Array) {
-            items := []
-            for value in obj
-                items.Push(JSON.Stringify(value))
-            return "[" . JSON._Join(items, ",") . "]"
-        }
-        else if (obj is String)
-            return '"' . obj . '"'
-        else if (obj = true)
-            return "true"
-        else if (obj = false)
-            return "false"
-        else if (obj = "")
-            return "null"
-        else
-            return String(obj)
-    }
-
-    static _ParseObject(text, &pos) {
-        obj := Map()
-        pos++
-        while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-            pos++
-        if (SubStr(text, pos, 1) == "}")
-            return obj
-        loop {
-            while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-                pos++
-            if (SubStr(text, pos, 1) != '"')
-                throw Error("Expected string key")
-            key := JSON._ParseString(text, &pos)
-            while (pos <= StrLen(text) && InStr(" `t`r`n:", SubStr(text, pos, 1)))
-                pos++
-            value := JSON._ParseValue(text, &pos)
-            obj[key] := value
-            while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-                pos++
-            ch := SubStr(text, pos, 1)
-            if (ch == "}")
-                return obj
-            if (ch == ",") {
-                pos++
-                continue
-            }
-            throw Error("Expected , or }")
-        }
-        return obj
-    }
-
-    static _ParseArray(text, &pos) {
-        arr := []
-        pos++
-        while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-            pos++
-        if (SubStr(text, pos, 1) == "]")
-            return arr
-        loop {
-            value := JSON._ParseValue(text, &pos)
-            arr.Push(value)
-            while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-                pos++
-            ch := SubStr(text, pos, 1)
-            if (ch == "]")
-                return arr
-            if (ch == ",") {
-                pos++
-                continue
-            }
-            throw Error("Expected , or ]")
-        }
-        return arr
-    }
-
-    static _ParseValue(text, &pos) {
-        while (pos <= StrLen(text) && InStr(" `t`r`n", SubStr(text, pos, 1)))
-            pos++
-        ch := SubStr(text, pos, 1)
-        if (ch == '"')
-            return JSON._ParseString(text, &pos)
-        else if (ch == "{")
-            return JSON._ParseObject(text, &pos)
-        else if (ch == "[")
-            return JSON._ParseArray(text, &pos)
-        else if (ch == "t") {
-            pos += 4
-            return true
-        }
-        else if (ch == "f") {
-            pos += 5
-            return false
-        }
-        else if (ch == "n") {
-            pos += 4
-            return ""
-        }
-        else if (InStr("0123456789-", ch))
-            return JSON._ParseNumber(text, &pos)
-        throw Error("Unexpected character: " . ch)
-    }
-
-    static _ParseString(text, &pos) {
-        if (SubStr(text, pos, 1) != '"')
-            throw Error("Expected string")
-        pos++
-        start := pos
-        while (pos <= StrLen(text)) {
-            ch := SubStr(text, pos, 1)
-            if (ch == '"') {
-                result := SubStr(text, start, pos - start)
-                pos++
-                return result
-            }
-            if (ch == "\")
-                pos++
-            pos++
-        }
-        throw Error("Unterminated string")
-    }
-
-    static _ParseNumber(text, &pos) {
-        start := pos
-        while (pos <= StrLen(text)) {
-            ch := SubStr(text, pos, 1)
-            if (!InStr("0123456789.-+eE", ch))
-                break
-            pos++
-        }
-        return Number(SubStr(text, start, pos - start))
-    }
-
-    static _Join(items, sep) {
-        result := ""
-        for item in items {
-            if (result != "")
-                result .= sep
-            result .= item
-        }
-        return result
-    }
-}
-
-; ==========================================
 ; DEFAULT CONFIGURATION
 ; ==========================================
 
@@ -235,14 +74,21 @@ if !FileExist(cfgFile) {
 }
 
 try {
-    userCfg := JSON.Parse(FileRead(cfgFile))
+    rawCfg := FileRead(cfgFile)
+    if rawCfg = "" {
+        throw Error("Config file is empty")
+    }
+    userCfg := JSON.Parse(rawCfg)
     if !userCfg.Has("BankCategories") {
         userCfg["BankCategories"] := defaultCfg["BankCategories"]
     }
-} catch {
+} catch as err {
+    OutputDebug("Config load error: " . err.Message . " - using defaults")
     userCfg := defaultCfg
     try {
         FileDelete(cfgFile)
+    } catch {
+        ; Failed to delete, will overwrite
     }
     FileAppend(JSON.Stringify(defaultCfg), cfgFile)
 }

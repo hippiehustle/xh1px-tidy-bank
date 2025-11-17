@@ -1,0 +1,153 @@
+================================================================================
+COMPREHENSIVE PROJECT VALIDATION REPORT
+================================================================================
+
+Generated: Sun Nov 16 09:27:05 PM MST 2025
+
+SUMMARY:
+  Critical/Errors: 67
+  Warnings: 13
+  Info: 47
+
+================================================================================
+CRITICAL ISSUES & ERRORS
+================================================================================
+ERROR      | config_gui.ahk                 | Line  126 | Call to undefined function: Gui
+ERROR      | config_gui.ahk                 | Line  127 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  155 | Call to undefined function: UseTab
+ERROR      | config_gui.ahk                 | Line  169 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  177 | Call to undefined function: MODE
+ERROR      | config_gui.ahk                 | Line  178 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  199 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  213 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  227 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  240 | Call to undefined function: Hopping
+ERROR      | config_gui.ahk                 | Line  241 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  255 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  258 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  261 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  268 | Call to undefined function: UseTab
+ERROR      | config_gui.ahk                 | Line  277 | Call to undefined function: tab
+ERROR      | config_gui.ahk                 | Line  294 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  310 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  311 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  388 | Call to undefined function: ModifyCol
+ERROR      | config_gui.ahk                 | Line  389 | Call to undefined function: ModifyCol
+ERROR      | config_gui.ahk                 | Line  390 | Call to undefined function: ModifyCol
+ERROR      | config_gui.ahk                 | Line  402 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  412 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  415 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  418 | Call to undefined function: OnEvent
+ERROR      | config_gui.ahk                 | Line  420 | Call to undefined function: UseTab
+ERROR      | config_gui.ahk                 | Line  853 | Call to undefined function: settings
+ERROR      | config_gui.ahk                 | Line  937 | Unclosed {
+ERROR      | config_gui.ahk                 | Line  939 | Call to undefined function: configuration
+ERROR      | config_gui.ahk                 | Line  943 | Unclosed {
+ERROR      | config_gui.ahk                 | Line  950 | Unclosed [
+ERROR      | config_gui.ahk                 | Line  953 | Unclosed {
+ERROR      | config_gui.ahk                 | Line  959 | Unclosed (
+ERROR      | config_gui.ahk                 | Line  961 | Unmatched closing brace }
+ERROR      | config_gui.ahk                 | Line  964 | Unmatched closing brace }
+ERROR      | config_gui.ahk                 | Line  968 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line    5 | Unclosed {
+ERROR      | json_parser.ahk                | Line   44 | Unclosed {
+ERROR      | json_parser.ahk                | Line   47 | Unclosed (
+ERROR      | json_parser.ahk                | Line   54 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line   56 | Unclosed {
+ERROR      | json_parser.ahk                | Line   69 | Unclosed {
+ERROR      | json_parser.ahk                | Line   74 | Unclosed (
+ERROR      | json_parser.ahk                | Line   74 | Unbalanced quotes in line
+ERROR      | json_parser.ahk                | Line   98 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  100 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  139 | Unclosed {
+ERROR      | json_parser.ahk                | Line  148 | Unclosed (
+ERROR      | json_parser.ahk                | Line  148 | Unbalanced quotes in line
+ERROR      | json_parser.ahk                | Line  178 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  180 | Unclosed {
+ERROR      | json_parser.ahk                | Line  182 | Unclosed (
+ERROR      | json_parser.ahk                | Line  182 | Unbalanced quotes in line
+ERROR      | json_parser.ahk                | Line  186 | Unclosed {
+ERROR      | json_parser.ahk                | Line  188 | Unclosed (
+ERROR      | json_parser.ahk                | Line  188 | Unbalanced quotes in line
+ERROR      | json_parser.ahk                | Line  192 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  193 | Unclosed (
+ERROR      | json_parser.ahk                | Line  210 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  213 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  215 | Unmatched closing brace }
+ERROR      | json_parser.ahk                | Line  253 | Unmatched closing brace }
+ERROR      | main.ahk                       | Line  364 | Call to undefined function: FileGetTime
+ERROR      | main.ahk                       | Line  368 | Call to undefined function: DateDiff
+ERROR      | performance.ahk                | Line  202 | Call to undefined function: MB
+ERROR      | performance.ahk                | Line  214 | Call to undefined function: OperationTracker
+
+================================================================================
+WARNINGS
+================================================================================
+WARNING    | config_gui.ahk                 | Line   73 | Risky operation FileAppend without try-catch
+WARNING    | config_gui.ahk                 | Line  909 | Risky operation FileRead without try-catch
+WARNING    | config_gui.ahk                 | Line  926 | Risky operation FileDelete without try-catch
+WARNING    | config_gui.ahk                 | Line  928 | Risky operation FileAppend without try-catch
+WARNING    | constants.ahk                  | Line  228 | Risky operation FileDelete without try-catch
+WARNING    | constants.ahk                  | Line  241 | Risky operation DirCreate without try-catch
+WARNING    | constants.ahk                  | Line  253 | Risky operation Run without try-catch
+WARNING    | item_grouping.ahk              | Line   51 | Risky operation Run without try-catch
+WARNING    | item_grouping.ahk              | Line   94 | Risky operation Run without try-catch
+WARNING    | item_grouping.ahk              | Line   95 | Risky operation Run without try-catch
+WARNING    | item_grouping.ahk              | Line   96 | Risky operation Run without try-catch
+WARNING    | main.ahk                       | Line  128 | Risky operation FileDelete without try-catch
+WARNING    | main.ahk                       | Line  393 | Risky operation DirCreate without try-catch
+
+================================================================================
+INFORMATIONAL
+================================================================================
+INFO       | bank_tab_resolver.ahk          | Line  224 | Function returns constant - verify implementation
+INFO       | bank_tab_resolver.ahk          | Line  227 | Function returns constant - verify implementation
+INFO       | config_gui.ahk                 | Line  906 | Function returns constant - verify implementation
+INFO       | config_gui.ahk                 | Line  930 | Function returns constant - verify implementation
+INFO       | config_gui.ahk                 | Line  933 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  114 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  116 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  119 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  155 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  158 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  212 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  214 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  232 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  234 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  236 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  246 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  248 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  257 | Function returns constant - verify implementation
+INFO       | constants.ahk                  | Line  290 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  147 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  153 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  160 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  163 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  294 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  299 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  301 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  307 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  312 | Function returns constant - verify implementation
+INFO       | item_grouping.ahk              | Line  314 | Function returns constant - verify implementation
+INFO       | json_parser.ahk                | Line  157 | Function returns constant - verify implementation
+INFO       | json_parser.ahk                | Line  164 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line   40 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line   47 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line   50 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  143 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  162 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  166 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  191 | Placeholder function detected - needs implementation
+INFO       | main.ahk                       | Line  220 | Placeholder function detected - needs implementation
+INFO       | main.ahk                       | Line  358 | Function returns constant - verify implementation
+INFO       | main.ahk                       | Line  374 | Function returns constant - verify implementation
+INFO       | performance.ahk                | Line  134 | Function returns constant - verify implementation
+INFO       | performance.ahk                | Line  136 | Function returns constant - verify implementation
+INFO       | performance.ahk                | Line  187 | Placeholder function detected - needs implementation
+INFO       | performance.ahk                | Line  189 | Function returns constant - verify implementation
+INFO       | performance.ahk                | Line  195 | Placeholder function detected - needs implementation
+INFO       | performance.ahk                | Line  196 | Function returns constant - verify implementation
+
+================================================================================
+VALIDATION COMPLETE
+================================================================================

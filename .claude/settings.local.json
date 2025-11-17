@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(for func in \"DetectItemAtPosition\" \"SafeSleep\" \"SafeDirCreate\" \"CreateTrackedOperation\")",
+      "Bash(do echo \"$func:\")",
+      "Bash(done)",
+      "Bash(awk:*)",
+      "Bash(python validate_syntax.py:*)",
+      "Bash(validation_output.txt)",
+      "Bash(python check_braces.py:*)",
+      "Bash(where:*)",
+      "Bash(python3:*)",
+      "Bash(chmod:*)",
+      "Bash(git config:*)",
+      "Bash(test -f:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

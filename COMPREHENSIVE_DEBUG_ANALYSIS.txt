@@ -1,0 +1,791 @@
+COMPREHENSIVE DEBUG ANALYSIS REPORT
+================================================================================
+
+Total Issues: 181
+Critical: 19
+High: 132
+Medium: 30
+Low: 0
+
+
+CRITICAL ISSUES:
+--------------------------------------------------------------------------------
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 27
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 51
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 72
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 77
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 937
+Category: SYNTAX
+Issue: Unclosed opening brace '{' found
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 943
+Category: SYNTAX
+Issue: Unclosed opening brace '{' found
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 953
+Category: SYNTAX
+Issue: Unclosed opening brace '{' found
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 959
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 100
+Category: SYNTAX
+Issue: Unmatched closing brace '}' found
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 152
+Category: SYNTAX
+Issue: Unclosed opening bracket '[' found
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 47
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 74
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 148
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 182
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 188
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Line: 193
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Line: 389
+Category: SYNTAX
+Issue: Unmatched closing brace '}' found
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Line: 79
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Line: 261
+Category: SYNTAX
+Issue: Unmatched quote found - string not properly closed
+
+HIGH ISSUES:
+--------------------------------------------------------------------------------
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'failure' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'around' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ItemGroupingSystem' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'positions' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'vector' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'immediately' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ALGORITHM' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'LOG_DIR' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'background' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'exceptions' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'item' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'system' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'game' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'sy' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'items' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'grid' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'FileProperties' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'row' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'variable' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'BankTabResolver' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'groups' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'number' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ex' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tab' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'state' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ey' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'move' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'at' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'commands' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'exists' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'pauses' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'location' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'closed' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'None' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'constants' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'arrays' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ADB_TIMEOUT' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'OCR' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'metrics' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'old' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'header' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'place' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tap' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'file' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'x' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 't' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'right' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'installed' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'warnings' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'normally' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'entries' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'y' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'position' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'PerformanceMonitor' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'window' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tabNum' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ImageMagick' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'startup' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'approximately' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'running' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'level' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'milliseconds' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'GetDatabaseStats' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'destinationTab' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'library' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'slots' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'range' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Files' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'hours' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Detection' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ValidationConstants' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'continues' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'path' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'delays' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'delay' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'stop' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'area' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'vision' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'to' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'col' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'implementation' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'successfully' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'sx' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'open' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'size' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ambiguous' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'message' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'errors' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'string' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'list' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'succeeds' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Milliseconds' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'LOG_FILE' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'text' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Category: FUNCTION_DEF
+Issue: Function 'configuration' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/constants.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ranges' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/constants.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ADB' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/constants.ahk
+Category: FUNCTION_DEF
+Issue: Function 'number' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/constants.ahk
+Category: FUNCTION_DEF
+Issue: Function 'operations' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'settings' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'row' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'column' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Hopping' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'SYSTEM' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'MODE' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'categories' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'configuration' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tab' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/item_grouping.ahk
+Category: FUNCTION_DEF
+Issue: Function 'name' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/item_grouping.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tags' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/bank_tab_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tag' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/bank_tab_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'number' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/bank_tab_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'items' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/bank_tab_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'config' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Category: FUNCTION_DEF
+Issue: Function 'digits' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Class' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/json_parser.ahk
+Category: FUNCTION_DEF
+Issue: Function 'u' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/performance.ahk
+Category: FUNCTION_DEF
+Issue: Function 'MB' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/performance.ahk
+Category: FUNCTION_DEF
+Issue: Function 'metrics' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/performance.ahk
+Category: FUNCTION_DEF
+Issue: Function 'OperationTracker' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Category: FUNCTION_DEF
+Issue: Function 'comma' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Category: FUNCTION_DEF
+Issue: Function 'test' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Category: FUNCTION_DEF
+Issue: Function 'characters' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ResolveMultipleItems' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'GetConflictStats' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'tabs' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'GetItemsForTab' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'ClearCache' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Consumables' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Resources' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'identical' called but not defined (may be in #Include)
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Category: FUNCTION_DEF
+Issue: Function 'Equipment' called but not defined (may be in #Include)
+
+MEDIUM ISSUES:
+--------------------------------------------------------------------------------
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 242
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 370
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 151
+Category: ERROR_HANDLING
+Issue: Risky operation 'Run(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main.ahk
+Line: 179
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileDelete(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 514
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 554
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 568
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 596
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TODO
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 597
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TODO
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 598
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TODO
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 599
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TODO
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 600
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TODO
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 723
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TEMPORARY
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 764
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: NOT IMPLEMENTED
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 768
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: TODO
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 771
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: NOT IMPLEMENTED
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 298
+Category: ERROR_HANDLING
+Issue: Risky operation 'Run(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 448
+Category: ERROR_HANDLING
+Issue: Risky operation 'RunWait(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 456
+Category: ERROR_HANDLING
+Issue: Risky operation 'RunWait(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 728
+Category: ERROR_HANDLING
+Issue: Risky operation 'RunWait(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 1029
+Category: ERROR_HANDLING
+Issue: Risky operation 'Run(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/main_template_v2.ahk
+Line: 1126
+Category: ERROR_HANDLING
+Issue: Risky operation 'Run(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 93
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileAppend(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 781
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileAppend(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 926
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileDelete(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/config_gui.ahk
+Line: 928
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileAppend(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/performance.ahk
+Line: 187
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/performance.ahk
+Line: 195
+Category: IMPLEMENTATION
+Issue: Placeholder/incomplete code found: PLACEHOLDER
+
+File: /home/xh1px/xh1px-tidy-bank/test_json_parser.ahk
+Line: 387
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileAppend(' without try-catch
+
+File: /home/xh1px/xh1px-tidy-bank/test_conflict_resolver.ahk
+Line: 338
+Category: ERROR_HANDLING
+Issue: Risky operation 'FileAppend(' without try-catch
