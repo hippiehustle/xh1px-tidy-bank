@@ -37,8 +37,8 @@ cfg := Map(
 )
 
 ; ADB configuration
-adb := "adb -s 127.0.0.1:5555"
-screenshot := A_Temp "\tidybank_screenshot.png"
+adb := ADBConstants.DEVICE_ID
+screenshot := FilePathConstants.SCREENSHOT_FILE
 running := false
 sessionStart := A_TickCount
 
@@ -292,9 +292,9 @@ PanicAbort() {
     Log("Emergency abort triggered", LogLevelConstants.WARNING)
     try {
         Run(adb " shell input keyevent 4")
-        Sleep(1000)
+        Sleep(TimeConstants.EMERGENCY_KEYPRESS_DELAY)
         Run(adb " shell input keyevent 82")
-        Sleep(3000)
+        Sleep(TimeConstants.EMERGENCY_UNLOCK_DELAY)
         Run("adb reboot", , "Hide")
     } catch as err {
         Log("Error during emergency abort: " . err.Message, LogLevelConstants.ERROR)
@@ -1095,7 +1095,7 @@ UI_Drag(sx, sy, ex, ey) {
 
     if cfg["StealthMode"] {
         try {
-            Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " 150", , "Hide")
+            Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " " . TimeConstants.DRAG_DURATION, , "Hide")
             PerformanceMonitor.RecordMetric("drags_performed")
             dragTracker.Complete(true)
         } catch as err {
@@ -1123,7 +1123,7 @@ UI_Drag(sx, sy, ex, ey) {
         }
 
         ; Final swipe
-        Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " 150", , "Hide")
+        Run(adb " shell input swipe " . Round(sx) . " " . Round(sy) . " " . Round(ex) . " " . Round(ey) . " " . TimeConstants.DRAG_DURATION, , "Hide")
         PerformanceMonitor.RecordMetric("drags_performed")
         dragTracker.Complete(true)
     } catch as err {
@@ -1193,16 +1193,16 @@ AntiBan() {
 
     switch cfg["AntiBan"] {
         case "Psychopath":
-            if r < 2 && ElapsedHours() > 2 {
-                Sleep(Random(180000, 360000))
+            if r < TimeConstants.ANTIBAN_PSYCHOPATH_CHANCE && ElapsedHours() > TimeConstants.ANTIBAN_PSYCHOPATH_HOURS {
+                Sleep(TimeConstants.GetAntiBanDelay("Psychopath"))
             }
         case "Extreme":
-            if r < 5 && ElapsedHours() > 1.5 {
-                Sleep(Random(180000, 360000))
+            if r < TimeConstants.ANTIBAN_EXTREME_CHANCE && ElapsedHours() > TimeConstants.ANTIBAN_EXTREME_HOURS {
+                Sleep(TimeConstants.GetAntiBanDelay("Extreme"))
             }
         case "Stealth":
-            if r < 1 && ElapsedHours() > 3 {
-                Sleep(Random(300000, 600000))
+            if r < TimeConstants.ANTIBAN_STEALTH_CHANCE && ElapsedHours() > TimeConstants.ANTIBAN_STEALTH_HOURS {
+                Sleep(TimeConstants.GetAntiBanDelay("Stealth"))
             }
     }
 
@@ -1250,11 +1250,12 @@ IsBankOpen() {
         }
 
         ; Get file modification time
-        fileTime := FileGetTime(screenshot)
+        fileTime := FileGetTime(screenshot, "M")
         currentTime := A_Now
 
         ; If screenshot is older than 3 seconds, it's stale
-        timeDiff := (A_TickCount - FileGetTime(screenshot, "M")) / 1000
+        ; Use DateDiff to properly calculate time difference in seconds
+        timeDiff := DateDiff(currentTime, fileTime, "S")
         if (timeDiff > 3) {
             Log("Screenshot too old (" . timeDiff . "s) - requesting new capture", LogLevelConstants.DEBUG)
             return false
@@ -1379,7 +1380,7 @@ OpenBank() {
     } catch as err {
         Log("Error opening bank: " . err.Message, LogLevelConstants.ERROR)
     }
-    Sleep(2000)
+    Sleep(TimeConstants.BANK_OPEN_DELAY)
 }
 
 ; ==========================================

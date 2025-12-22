@@ -73,6 +73,29 @@ class TimeConstants {
     static LOOP_INTERVAL := 800
     static SESSION_CHECK_INTERVAL := 60000  ; Check every minute
 
+    ; Anti-ban break delays (in milliseconds)
+    static ANTIBAN_PSYCHOPATH_MIN := 180000  ; 3 minutes
+    static ANTIBAN_PSYCHOPATH_MAX := 360000  ; 6 minutes
+    static ANTIBAN_EXTREME_MIN := 180000     ; 3 minutes
+    static ANTIBAN_EXTREME_MAX := 360000     ; 6 minutes
+    static ANTIBAN_STEALTH_MIN := 300000     ; 5 minutes
+    static ANTIBAN_STEALTH_MAX := 600000     ; 10 minutes
+
+    ; Anti-ban trigger thresholds
+    static ANTIBAN_PSYCHOPATH_CHANCE := 2    ; 2% chance
+    static ANTIBAN_EXTREME_CHANCE := 5       ; 5% chance
+    static ANTIBAN_STEALTH_CHANCE := 1       ; 1% chance
+    static ANTIBAN_PSYCHOPATH_HOURS := 2.0   ; After 2 hours
+    static ANTIBAN_EXTREME_HOURS := 1.5      ; After 1.5 hours
+    static ANTIBAN_STEALTH_HOURS := 3.0      ; After 3 hours
+
+    ; Emergency shutdown delays
+    static EMERGENCY_KEYPRESS_DELAY := 1000  ; 1 second
+    static EMERGENCY_UNLOCK_DELAY := 3000    ; 3 seconds
+
+    ; Bank operation delays
+    static BANK_OPEN_DELAY := 2000           ; 2 seconds
+
     ; Generate random pause within range
     static GetShortPause() {
         return Random(this.SHORT_PAUSE_MIN, this.SHORT_PAUSE_MAX)
@@ -84,6 +107,19 @@ class TimeConstants {
 
     static GetLongPause() {
         return Random(this.LONG_PAUSE_MIN, this.LONG_PAUSE_MAX)
+    }
+
+    static GetAntiBanDelay(mode) {
+        switch mode {
+            case "Psychopath":
+                return Random(this.ANTIBAN_PSYCHOPATH_MIN, this.ANTIBAN_PSYCHOPATH_MAX)
+            case "Extreme":
+                return Random(this.ANTIBAN_EXTREME_MIN, this.ANTIBAN_EXTREME_MAX)
+            case "Stealth":
+                return Random(this.ANTIBAN_STEALTH_MIN, this.ANTIBAN_STEALTH_MAX)
+            default:
+                return 0
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #Include json_parser.ahk
+#Include constants.ahk
 
 ; ==========================================
 ; xh1px's Tidy Bank - OSRS Bank Sorter Bot
@@ -19,8 +20,8 @@ cfg := Map(
 )
 
 ; ADB configuration
-adb := "adb -s 127.0.0.1:5555"
-screenshot := A_Temp "\tidybank_screenshot.png"
+adb := ADBConstants.DEVICE_ID
+screenshot := FilePathConstants.SCREENSHOT_FILE
 running := false
 sessionStart := A_TickCount
 db := Map()
@@ -83,7 +84,7 @@ ToggleBot() {
             return
         }
 
-        SetTimer(BankSortLoop, 800)
+        SetTimer(BankSortLoop, TimeConstants.LOOP_INTERVAL)
     } else {
         Speak("Bot deactivated")
         SetTimer(BankSortLoop, 0)
@@ -96,9 +97,9 @@ PanicAbort() {
     Speak("Emergency shutdown")
     try {
         Run(adb " shell input keyevent 4")
-        Sleep(1000)
+        Sleep(TimeConstants.EMERGENCY_KEYPRESS_DELAY)
         Run(adb " shell input keyevent 82")
-        Sleep(3000)
+        Sleep(TimeConstants.EMERGENCY_UNLOCK_DELAY)
         Run("adb reboot", , "Hide")
     }
     ExitApp()
@@ -140,7 +141,7 @@ BankSortLoop() {
 PreloadCache() {
     global db, itemHashes
 
-    dbPath := A_ScriptDir "\osrs-items-condensed.json"
+    dbPath := FilePathConstants.DATABASE_FILE
     if !FileExist(dbPath) {
         MsgBox("Database file not found: " . dbPath, "xh1px's Tidy Bank - Error", 16)
         Log("ERROR: Database file not found: " . dbPath)
@@ -215,13 +216,13 @@ ScanBank() {
     ; ============================================
 
     ; Scan 8x8 grid of bank slots
-    Loop 8 {
+    Loop BankCoordinates.GRID_ROWS {
         row := A_Index - 1
-        rowY := row * 60 + 150
+        rowY := BankCoordinates.GRID_START_Y + (row * BankCoordinates.GRID_CELL_SPACING)
 
-        Loop 8 {
+        Loop BankCoordinates.GRID_COLS {
             col := A_Index - 1
-            colX := col * 60 + 50
+            colX := BankCoordinates.GRID_START_X + (col * BankCoordinates.GRID_CELL_SPACING)
 
             ; PLACEHOLDER: Random item generation for testing
             ; TODO: Replace with actual OCR/image detection
@@ -230,9 +231,9 @@ ScanBank() {
             if (id > 0) {
                 items.Push(Map(
                     "id", id,
-                    "x", colX + 21,
-                    "y", rowY + 21,
-                    "slot", row * 8 + col
+                    "x", colX + BankCoordinates.GRID_CELL_CENTER_OFFSET,
+                    "y", rowY + BankCoordinates.GRID_CELL_CENTER_OFFSET,
+                    "slot", row * BankCoordinates.GRID_COLS + col
                 ))
             }
         }
@@ -268,21 +269,18 @@ SortItems(items, mode) {
     return items
 }
 
-Rearrange(items) { 
-    startX := 71
-    startY := 171
-    spacing := 60
+Rearrange(items) {
     col := 0
     row := 0
-    
+
     for item in items {
-        targetX := startX + (col * spacing)
-        targetY := startY + (row * spacing)
-        
+        targetX := BankCoordinates.GRID_START_X + (col * BankCoordinates.GRID_CELL_SPACING)
+        targetY := BankCoordinates.GRID_START_Y + (row * BankCoordinates.GRID_CELL_SPACING)
+
         UI_Drag(item["x"], item["y"], targetX, targetY)
-        
+
         col++
-        if (col >= 8) {
+        if (col >= BankCoordinates.GRID_COLS) {
             col := 0
             row++
         }
@@ -294,26 +292,26 @@ UI_Drag(sx, sy, ex, ey) {
 
     if (cfg["StealthMode"]) {
         try {
-            Run(adb " shell input swipe " Round(sx) " " Round(sy) " " Round(ex) " " Round(ey) " 150", , "Hide")
+            Run(adb " shell input swipe " Round(sx) " " Round(sy) " " Round(ex) " " Round(ey) " " TimeConstants.DRAG_DURATION, , "Hide")
         }
         return
     }
-    
+
     ; Human-like movement simulation
     steps := 15
-    Loop steps { 
+    Loop steps {
         progress := A_Index / steps
         x := Round((1 - progress) * sx + progress * ex + Random(-2, 2))
         y := Round((1 - progress) * sy + progress * ey + Random(-2, 2))
-        
+
         try {
             Run(adb " shell input tap " x " " y, , "Hide")
         }
         Sleep(10)
     }
-    
+
     try {
-        Run(adb " shell input swipe " Round(sx) " " Round(sy) " " Round(ex) " " Round(ey) " 150", , "Hide")
+        Run(adb " shell input swipe " Round(sx) " " Round(sy) " " Round(ex) " " Round(ey) " " TimeConstants.DRAG_DURATION, , "Hide")
     }
 }
 
@@ -332,19 +330,19 @@ AntiBan() {
 
     switch cfg["AntiBan"] {
         case "Psychopath":
-            if (r < 2 && ElapsedHours() > 2) {
-                Sleep(Random(180000, 360000))
+            if (r < TimeConstants.ANTIBAN_PSYCHOPATH_CHANCE && ElapsedHours() > TimeConstants.ANTIBAN_PSYCHOPATH_HOURS) {
+                Sleep(TimeConstants.GetAntiBanDelay("Psychopath"))
             }
         case "Extreme":
-            if (r < 5 && ElapsedHours() > 1.5) {
-                Sleep(Random(180000, 360000))
+            if (r < TimeConstants.ANTIBAN_EXTREME_CHANCE && ElapsedHours() > TimeConstants.ANTIBAN_EXTREME_HOURS) {
+                Sleep(TimeConstants.GetAntiBanDelay("Extreme"))
             }
         case "Stealth":
-            if (r < 1 && ElapsedHours() > 3) {
-                Sleep(Random(300000, 600000))
+            if (r < TimeConstants.ANTIBAN_STEALTH_CHANCE && ElapsedHours() > TimeConstants.ANTIBAN_STEALTH_HOURS) {
+                Sleep(TimeConstants.GetAntiBanDelay("Stealth"))
             }
     }
-    
+
     ; Check session time limit
     if (ElapsedHours() >= cfg["MaxSession"] / 60) {
         Speak("Session time limit reached")
@@ -392,9 +390,9 @@ OpenBank() {
 
     Speak("Opening bank")
     try {
-        Run(adb " shell input tap 960 540", , "Hide")
+        Run(adb " shell input tap " BankCoordinates.SCREEN_CENTER_X " " BankCoordinates.SCREEN_CENTER_Y, , "Hide")
     }
-    Sleep(2000)
+    Sleep(TimeConstants.BANK_OPEN_DELAY)
 }
 
 ElapsedHours() {
@@ -403,17 +401,14 @@ ElapsedHours() {
     return Round((A_TickCount - sessionStart) / 3600000, 1)
 }
 
-Log(message) { 
-    logDir := A_ScriptDir "\logs"
-    if !DirExist(logDir) {
-        DirCreate(logDir)
-    }
-    
+Log(message) {
+    ; Ensure log directory exists
+    FilePathConstants.EnsureLogDirectory()
+
     timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
-    logFile := logDir "\tidybank_log.txt"
-    
+
     try {
-        FileAppend(timestamp " | " message "`n", logFile)
+        FileAppend(timestamp " | " message "`n", FilePathConstants.LOG_FILE)
     }
 }
 
