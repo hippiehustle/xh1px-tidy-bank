@@ -159,7 +159,7 @@ class FilePathConstants {
 class ADBConstants {
     ; ADB connection settings
     static DEVICE_ADDRESS := "127.0.0.1:5555"
-    static DEVICE_ID := "adb -s " . this.DEVICE_ADDRESS
+    static DEVICE_ID := "adb -s 127.0.0.1:5555"
 
     ; ADB commands
     static CMD_SCREENCAP := " shell screencap -p /sdcard/bank.png"

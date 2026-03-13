@@ -796,15 +796,12 @@ HasItemAtPosition(screenshotPath, x, y, size) {
         ; Simple heuristic: if screenshot is recent and bank is open,
         ; assume there's an item if coordinates are valid and in grid range
 
-        ; Bank grid starts at approximately (71, 171)
-        ; Cell spacing is 60 pixels
-        ; 8x8 grid = positions (71-551, 171-651)
-
-        bankGridStartX := 71
-        bankGridStartY := 171
-        bankGridEndX := 551
-        bankGridEndY := 651
-        cellSpacing := 60
+        ; Use constants instead of hardcoded values
+        bankGridStartX := BankCoordinates.GRID_START_X
+        bankGridStartY := BankCoordinates.GRID_START_Y
+        bankGridEndX := BankCoordinates.GRID_START_X + ((BankCoordinates.GRID_COLS - 1) * BankCoordinates.GRID_CELL_SPACING)
+        bankGridEndY := BankCoordinates.GRID_START_Y + ((BankCoordinates.GRID_ROWS - 1) * BankCoordinates.GRID_CELL_SPACING)
+        cellSpacing := BankCoordinates.GRID_CELL_SPACING
 
         ; Check if coordinates are within bank grid
         if (x >= bankGridStartX && x <= bankGridEndX && y >= bankGridStartY && y <= bankGridEndY) {

@@ -176,7 +176,9 @@ PreloadCache() {
 ; SCREENSHOT & SCANNING
 ; ==========================================
 
-ScreenshotBank() { 
+ScreenshotBank() {
+    global adb, screenshot
+
     try {
         RunWait(adb " shell screencap -p /sdcard/bank.png", , "Hide")
         RunWait(adb ' pull /sdcard/bank.png "' screenshot '"', , "Hide")
@@ -322,7 +324,7 @@ UI_Drag(sx, sy, ex, ey) {
 AntiBan() {
     global cfg, sessionStart
 
-    if (cfg["StealthMode"] || cfg["AntiBan"] = "Off") {
+    if (cfg["StealthMode"] || cfg["AntiBan"] == "Off") {
         return
     }
 
@@ -403,12 +405,19 @@ ElapsedHours() {
 
 Log(message) {
     ; Ensure log directory exists
-    FilePathConstants.EnsureLogDirectory()
+    if !FilePathConstants.EnsureLogDirectory() {
+        ; Fallback to console if log directory cannot be created
+        OutputDebug(FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . " [LOGFAIL] " . message)
+        return
+    }
 
     timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
 
     try {
         FileAppend(timestamp " | " message "`n", FilePathConstants.LOG_FILE)
+    } catch as err {
+        ; Fallback to debug output if file write fails
+        OutputDebug(timestamp . " [WRITEFAIL] " . message . " (Error: " . err.Message . ")")
     }
 }
 
