@@ -131,16 +131,15 @@ class FilePathConstants {
     ; - ADB (Android Debug Bridge): REQUIRED - Command line tool at 127.0.0.1:5555
     ;
     ; BASE DIRECTORIES
-    static SCRIPT_DIR := A_ScriptDir
+    static SCRIPT_DIR := A_ScriptDir . "\.."  ; Project root (one level up from src/)
     static TEMP_DIR := A_Temp
-    static LOG_DIR := A_ScriptDir . "\logs"
+    static LOG_DIR := A_ScriptDir . "\..\logs"
 
     ; FILE NAMES
     static SCREENSHOT_FILE := A_Temp . "\tidybank_screenshot.png"
-    static CONFIG_FILE := A_ScriptDir . "\user_config.json"
-    static DATABASE_FILE := A_ScriptDir . "\osrs-items-condensed.json"
-    static TEMPLATE_FILE := A_ScriptDir . "\main_template_v2.ahk"
-    static LOG_FILE := A_ScriptDir . "\logs\tidybank_log.txt"
+    static CONFIG_FILE := A_ScriptDir . "\..\data\user_config.json"
+    static DATABASE_FILE := A_ScriptDir . "\..\data\osrs-items-condensed.json"
+    static LOG_FILE := A_ScriptDir . "\..\logs\tidybank_log.txt"
 
     ; Ensure log directory exists
     static EnsureLogDirectory() {

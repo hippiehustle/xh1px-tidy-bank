@@ -1,13 +1,14 @@
 # Log files
-logs/
+logs/*.txt
+logs/*.log
 *.log
-tidybank_log.txt
-
-# Generated main script
-main.ahk
 
 # User configuration (may contain sensitive data)
-user_config.json
+data/user_config.json
+
+# Screenshots
+*.png
+!xh1px_logo.png
 
 # Temporary files
 *.tmp
@@ -36,6 +37,7 @@ desktop.ini
 osrsbox-items-tagged.json
 osrsbox-db.json
 
-# Archive directory
-archive/
+# Python cache
 __pycache__/
+*.pyc
+*.pyo
